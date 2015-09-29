@@ -8,7 +8,7 @@ In this example, we look at using AWS Lambda and Amazon API Gateway to build a d
 
 The architecture described in this [diagram](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda-refarch-webapp.pdf) can be created with a CloudFormation template.
 
-[The template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/vote-app.template) does the following:
+[The template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/voteapp.template) does the following:
 
 - Creates an S3 Bucket named <S3BucketName> to hold your web app.
 - Creates a DynamoDB table named <DynamoDBTableName> in which votes will be stored
@@ -24,7 +24,7 @@ The services and resources configured by the CloudFormation template can be test
 ## Instructions
 
 
-Step 1 - Create a CloudFormation Stack with the [template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/vote-app.template) using a lowercase name for the stack
+Step 1 - Create a CloudFormation Stack with the [template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/voteapp.template) using a lowercase name for the stack
 
 Step 2 - Visit the [API Gateway dashboard](https://console.aws.amazon.com/apigateway/home) in your AWS account and create a new resource with a `/vote` endpoint. Assign a POST method that has the `Integration Request` type of "Lambda Function," and point to the Lambda function created by the CloudFormation script that receives votes from your third-party voting service (in this example, Twilio).
 
