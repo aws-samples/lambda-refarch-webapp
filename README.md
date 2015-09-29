@@ -22,7 +22,7 @@ The architecture described in this [diagram](https://s3.amazonaws.com/awslambda-
 The services and resources configured by the CloudFormation template can be tested with the HTML page `index.html`, which relies on the HTML, JavaScript, and CSS files found in this repo. You can copy these files to the S3 bucket created by the CloudFormation script.
 
 ## Instructions
-
+This demo demonstrates receiving votes via text message from users via a phone number. To duplicate the system built by this architecture, you will need to setup a phone number with third-party, like [Twilio](http://twilio.com). For full details, read [our post](https://medium.com/aws-activate-startup-blog/building-dynamic-dashboards-using-aws-lambda-and-amazon-dynamodb-streams-part-ii-b2d883bebde5) on the [AWS Startup Collection at Medium](https://medium.com/aws-activate-startup-blog).
 
 Step 1 - Create a CloudFormation Stack with the [template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/voteapp.template) using a lowercase name for the stack
 
