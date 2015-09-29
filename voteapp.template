@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
 
-  "Description" : "AWS CloudFormation Template for VoteApp: Builds a DynamoDB table, an S3 bucket and a Lambda function for use in a real-time voting application. ** This template creates multiple AWS resources. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Description" : "AWS CloudFormation Template for VoteApp: Builds DynamoDB tables, an S3 bucket, and Lambda functions for use in a real-time voting application. ** This template creates multiple AWS resources. You will be billed for the AWS resources used if you create a stack from this template.",
 
   "Parameters": {
 
@@ -13,12 +13,22 @@
       "Default": "myVotingAppBucket"
     },
 
-    "S3CodeBucketName": {
-      "Description": "Existing S3 bucket in which the code for the Lambda function (index.zip) exists",
-      "Type": "String",
-      "MinLength": "3",
-      "MaxLength": "63",
-      "Default": "myVotingAppLambdaCodeBucket"
+    "LambdaS3Bucket" : {
+        "Type" : "String",
+        "Description" : "Name of S3 bucket where static site and Lambda function packages are stored.",
+        "Default" : "awslambda-reference-architectures"
+    },
+
+    "LambdaReceiveS3Key" : {
+        "Type" : "String",
+        "Default" : "web-app/receive.zip",
+        "Description" : "Name of S3 key for ZIP with Lambda function package that receives votes."
+    },
+
+    "LambdaAggregateS3Key" : {
+        "Type" : "String",
+        "Default" : "web-app/aggregate.zip",
+        "Description" : "Name of S3 key for ZIP with Lambda function package that aggregates votes."
     },
 
     "DynamoDBTableName": {
@@ -177,9 +187,11 @@
       "Properties": {
         "Code": {
           "S3Bucket": {
-            "Ref": "S3CodeBucketName"
+            "Ref": "LambdaS3Bucket"
           },
-          "S3Key": "receive.zip"
+          "S3Key": {
+              "Ref": "LambdaReceiveS3Key"
+          }
         },
         "Runtime": "nodejs",
         "Description": "Receives votes from Twilio and adds to DynamoDB",
@@ -199,9 +211,11 @@
       "Properties": {
         "Code": {
           "S3Bucket": {
-            "Ref": "S3CodeBucketName"
+            "Ref": "LambdaS3Bucket"
           },
-          "S3Key": "aggregate.zip"
+          "S3Key": {
+            "Ref": "LambdaAggregateS3Key"
+          }
         },
         "Runtime": "nodejs",
         "Description": "Receives updated items from DynamoDB streams for aggregation",
