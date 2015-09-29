@@ -1,0 +1,300 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description" : "AWS CloudFormation Template for VoteApp: Builds a DynamoDB table, an S3 bucket and a Lambda function for use in a real-time voting application. ** This template creates multiple AWS resources. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters": {
+
+    "S3BucketName": {
+      "Description": "S3 bucket in which the static app will reside",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "63",
+      "Default": "myVotingAppBucket"
+    },
+
+    "S3CodeBucketName": {
+      "Description": "Existing S3 bucket in which the code for the Lambda function (index.zip) exists",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "63",
+      "Default": "myVotingAppLambdaCodeBucket"
+    },
+
+    "DynamoDBTableName": {
+      "Description": "DynamoDB Table in which votes will be stored",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "63",
+      "Default": "VoteApp"
+    },
+
+    "DynamoDBTableRead": {
+      "Description": "Read capacity units for DynamoDB table",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "4",
+      "AllowedPattern": "[0-9]*",
+      "Default": "1"
+    },
+
+    "DynamoDBTableWrite": {
+      "Description": "Write capacity units for DynamoDB table",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "4",
+      "AllowedPattern": "[0-9]*",
+      "Default": "1"
+    },
+
+    "AggregatesTableName": {
+      "Description": "DynamoDB aggregates table in which total votes will be stored",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "63",
+      "Default": "VoteAppAggregates"
+    },
+
+    "AggregatesTableRead": {
+      "Description": "Read capacity units for aggregates table",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "4",
+      "AllowedPattern": "[0-9]*",
+      "Default": "1"
+    },
+
+    "AggregatesTableWrite": {
+      "Description": "Write capacity units for aggregates table",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "4",
+      "AllowedPattern": "[0-9]*",
+      "Default": "1"
+    }
+  },
+
+  "Resources": {
+
+    "DynamoDBTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "VotedFor",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "VotedFor",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": {
+            "Ref": "DynamoDBTableRead"
+          },
+          "WriteCapacityUnits": {
+            "Ref": "DynamoDBTableWrite"
+          }
+        },
+        "TableName": {
+          "Ref": "DynamoDBTableName"
+        }
+      }
+    },
+
+    "DynamoDBAggregatesTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "VotedFor",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "VotedFor",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": {
+            "Ref": "AggregatesTableRead"
+          },
+          "WriteCapacityUnits": {
+            "Ref": "AggregatesTableWrite"
+          }
+        },
+        "TableName": {
+          "Ref": "AggregatesTableName"
+        }
+      }
+    },
+
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "PublicRead",
+        "BucketName": {
+          "Ref": "S3BucketName"
+        },
+        "WebsiteConfiguration": {
+          "IndexDocument": "index.html",
+          "ErrorDocument": "error.html"
+        }
+      }
+    },
+
+    "BucketPolicy" : {
+        "Type" : "AWS::S3::BucketPolicy",
+        "Properties" : {
+          "PolicyDocument" : {
+              "Id" : "S3BucketPolicy",
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                    "Sid": "PublicReadForGetBucketObjects",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "*"
+                    },
+                    "Action": "s3:GetObject",
+                    "Resource" : { "Fn::Join" : [
+                        "", [ "arn:aws:s3:::", { "Ref" : "S3Bucket" } , "/*" ]
+                    ] }
+                  }
+              ]
+          },
+          "Bucket" : { "Ref" : "S3Bucket" }
+        }
+    },
+
+    "LambdaVoteFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "S3CodeBucketName"
+          },
+          "S3Key": "receive.zip"
+        },
+        "Runtime": "nodejs",
+        "Description": "Receives votes from Twilio and adds to DynamoDB",
+        "Handler": "app.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaExecDynamoRole",
+            "Arn"
+          ]
+        },
+        "Timeout": "30"
+      }
+    },
+
+    "LambdaAggregateFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "S3CodeBucketName"
+          },
+          "S3Key": "aggregate.zip"
+        },
+        "Runtime": "nodejs",
+        "Description": "Receives updated items from DynamoDB streams for aggregation",
+        "Handler": "app.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaExecDynamoRole",
+            "Arn"
+          ]
+        },
+        "Timeout": "30"
+      }
+    },
+
+    "LambdaExecDynamoRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "lambda_exec_role_voteapp",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    "arn:aws:logs:*:*:*"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:Query",
+                    "dynamodb:UpdateItem"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+
+  "Outputs": {
+
+    "WebsiteURL": {
+      "Value": {
+        "Fn::GetAtt": [
+          "S3Bucket",
+          "WebsiteURL"
+        ]
+      },
+      "Description": "URL for static website hosted on S3"
+    },
+
+    "S3BucketSecureURL": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Fn::GetAtt": [
+                "S3Bucket",
+                "DomainName"
+              ]
+            }
+          ]
+        ]
+      },
+      "Description": "Name of S3 bucket hosting content"
+    }
+  }
+
+}
