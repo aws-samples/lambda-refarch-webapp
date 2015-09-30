@@ -37,8 +37,16 @@ Step 4 - Open `refresh.js` and replace default values of region, identity-pool-i
 
 Congratulations! You now should have a working example of the reference architecture. You are able to receive votes in real time, tune your DynamoDB table to handle various levels of incoming traffic, and watch your results change on your dashboard in real time!
 
+## Worth Noting
+
+The CloudFormation script will create two DynamoDB tables for you. Although you are able to specify the read and write capacity through the CloudFormation script, you are able to specify the table names in the script. This is because the JavaScript code that receives and aggregates votes must know the names of that tables  (_VoteApp_ and _VoteAppAggregates_) in advance. If you would like to change the names of your DynamoDB tables, makes sure to change the names in the JavaScript files themselves in the archives found in both [the aggregate archive](http://s3-website-us-east-1.amazonaws.com/awslambda-reference-architectures/web-app/aggregate.zip) and [the receiving archive](http://s3-website-us-east-1.amazonaws.com/awslambda-reference-architectures/web-app/receive.zip).
+
 ## Cleanup
 
 To remove all automatically created resources, delete the CloudFormation stack. You will manually need to remove the API Gateway endpoint and the Cognito identity pool.
 
 Note: Deletion of the S3 bucket will fail unless all files in the bucket are removed before the stack is deleted.
+
+## License
+
+This reference architecture sample is licensed under Apache 2.0.
