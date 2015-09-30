@@ -1,11 +1,11 @@
-// Region, IdentityPoolId, and TableName should be set to your own values
+// Region and IdentityPoolId should be set to your own values
 AWS.config.region = '<your-region-here>'; // Region
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
     IdentityPoolId: '<your-identity-pool-id-here>',
 });
 
 var dynamodb = new AWS.DynamoDB();
-var params = { TableName: '<your-dynamodb-aggregates-table-name-here>' };
+var params = { TableName: 'VoteAppAggregates' };
 
 /* Create the context for applying the chart to the HTML canvas */
 var ctx = $("#graph").get(0).getContext("2d");
