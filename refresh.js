@@ -20,11 +20,11 @@ var options = { segmentShowStroke : false,
 								animationEasing : 'easeOutCirc'
               }
 
-/* Set the inital data */
+/* Set the initial data */
 var init = [
   {
       value: 1,
-      color:"#e74c3c",
+      color: "#e74c3c",
       highlight: "#c0392b",
       label: "Red"
   },
