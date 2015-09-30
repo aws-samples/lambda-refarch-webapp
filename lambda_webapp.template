@@ -6,142 +6,122 @@
   "Parameters": {
 
     "S3BucketName": {
-      "Description": "S3 bucket in which the static app will reside",
-      "Type": "String",
-      "MinLength": "3",
-      "MaxLength": "63",
-      "Default": "myVotingAppBucket"
+        "Description": "S3 bucket in which the static app will reside",
+        "Type": "String",
+        "MinLength": "3",
+        "MaxLength": "63",
+        "Default": "myvoteappbucket"
     },
 
     "LambdaS3Bucket" : {
-        "Type" : "String",
         "Description" : "Name of S3 bucket where static site and Lambda function packages are stored.",
+        "Type" : "String",
         "Default" : "awslambda-reference-architectures"
     },
 
     "LambdaReceiveS3Key" : {
+        "Description" : "Name of S3 key for ZIP with Lambda function package that receives votes.",
         "Type" : "String",
-        "Default" : "web-app/receive.zip",
-        "Description" : "Name of S3 key for ZIP with Lambda function package that receives votes."
+        "Default" : "web-app/receive.zip"
     },
 
     "LambdaAggregateS3Key" : {
+        "Description" : "Name of S3 key for ZIP with Lambda function package that aggregates votes.",
         "Type" : "String",
-        "Default" : "web-app/aggregate.zip",
-        "Description" : "Name of S3 key for ZIP with Lambda function package that aggregates votes."
+        "Default" : "web-app/aggregate.zip"
     },
 
-    "DynamoDBTableName": {
-      "Description": "DynamoDB Table in which votes will be stored",
-      "Type": "String",
-      "MinLength": "3",
-      "MaxLength": "63",
-      "Default": "VoteApp"
+    "VotesTableRead": {
+        "Description": "Read capacity units for VoteApp DynamoDB table",
+        "Type": "String",
+        "MinLength": "1",
+        "MaxLength": "4",
+        "AllowedPattern": "[0-9]*",
+        "Default": "1"
     },
 
-    "DynamoDBTableRead": {
-      "Description": "Read capacity units for DynamoDB table",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "4",
-      "AllowedPattern": "[0-9]*",
-      "Default": "1"
-    },
-
-    "DynamoDBTableWrite": {
-      "Description": "Write capacity units for DynamoDB table",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "4",
-      "AllowedPattern": "[0-9]*",
-      "Default": "1"
-    },
-
-    "AggregatesTableName": {
-      "Description": "DynamoDB aggregates table in which total votes will be stored",
-      "Type": "String",
-      "MinLength": "3",
-      "MaxLength": "63",
-      "Default": "VoteAppAggregates"
+    "VotesTableWrite": {
+        "Description": "Write capacity units for VoteApp DynamoDB table",
+        "Type": "String",
+        "MinLength": "1",
+        "MaxLength": "4",
+        "AllowedPattern": "[0-9]*",
+        "Default": "1"
     },
 
     "AggregatesTableRead": {
-      "Description": "Read capacity units for aggregates table",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "4",
-      "AllowedPattern": "[0-9]*",
-      "Default": "1"
+        "Description": "Read capacity units for VoteAppAggregates aggregates table",
+        "Type": "String",
+        "MinLength": "1",
+        "MaxLength": "4",
+        "AllowedPattern": "[0-9]*",
+        "Default": "1"
     },
 
     "AggregatesTableWrite": {
-      "Description": "Write capacity units for aggregates table",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "4",
-      "AllowedPattern": "[0-9]*",
-      "Default": "1"
+        "Description": "Write capacity units for VoteAppAggregates aggregates table",
+        "Type": "String",
+        "MinLength": "1",
+        "MaxLength": "4",
+        "AllowedPattern": "[0-9]*",
+        "Default": "1"
     }
   },
 
   "Resources": {
 
     "DynamoDBTable": {
-      "Type": "AWS::DynamoDB::Table",
-      "Properties": {
-        "AttributeDefinitions": [
-          {
-            "AttributeName": "VotedFor",
-            "AttributeType": "S"
-          }
-        ],
-        "KeySchema": [
-          {
-            "AttributeName": "VotedFor",
-            "KeyType": "HASH"
-          }
-        ],
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": {
-            "Ref": "DynamoDBTableRead"
+        "Type": "AWS::DynamoDB::Table",
+        "Properties": {
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "VotedFor",
+              "AttributeType": "S"
+            }
+          ],
+          "KeySchema": [
+            {
+              "AttributeName": "VotedFor",
+              "KeyType": "HASH"
+            }
+          ],
+          "ProvisionedThroughput": {
+            "ReadCapacityUnits": {
+              "Ref": "VotesTableRead"
+            },
+            "WriteCapacityUnits": {
+              "Ref": "VotesTableWrite"
+            }
           },
-          "WriteCapacityUnits": {
-            "Ref": "DynamoDBTableWrite"
-          }
-        },
-        "TableName": {
-          "Ref": "DynamoDBTableName"
+          "TableName": "VoteApp"
         }
-      }
     },
 
     "DynamoDBAggregatesTable": {
-      "Type": "AWS::DynamoDB::Table",
-      "Properties": {
-        "AttributeDefinitions": [
-          {
-            "AttributeName": "VotedFor",
-            "AttributeType": "S"
-          }
-        ],
-        "KeySchema": [
-          {
-            "AttributeName": "VotedFor",
-            "KeyType": "HASH"
-          }
-        ],
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": {
-            "Ref": "AggregatesTableRead"
+        "Type": "AWS::DynamoDB::Table",
+        "Properties": {
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "VotedFor",
+              "AttributeType": "S"
+            }
+          ],
+          "KeySchema": [
+            {
+              "AttributeName": "VotedFor",
+              "KeyType": "HASH"
+            }
+          ],
+          "ProvisionedThroughput": {
+            "ReadCapacityUnits": {
+              "Ref": "AggregatesTableRead"
+            },
+            "WriteCapacityUnits": {
+              "Ref": "AggregatesTableWrite"
+            }
           },
-          "WriteCapacityUnits": {
-            "Ref": "AggregatesTableWrite"
-          }
-        },
-        "TableName": {
-          "Ref": "AggregatesTableName"
+          "TableName": "VoteAppAggregates"
         }
-      }
     },
 
     "S3Bucket": {
@@ -283,16 +263,17 @@
   "Outputs": {
 
     "WebsiteURL": {
+      "Description": "URL for static website hosted on S3",
       "Value": {
         "Fn::GetAtt": [
           "S3Bucket",
           "WebsiteURL"
         ]
-      },
-      "Description": "URL for static website hosted on S3"
+      }
     },
 
     "S3BucketSecureURL": {
+      "Description": "Name of S3 bucket hosting content",
       "Value": {
         "Fn::Join": [
           "",
@@ -306,9 +287,7 @@
             }
           ]
         ]
-      },
-      "Description": "Name of S3 bucket hosting content"
+      }
     }
   }
-
 }

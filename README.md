@@ -11,8 +11,8 @@ The architecture described in this [diagram](https://s3.amazonaws.com/awslambda-
 [The template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda_webapp.template) does the following:
 
 - Creates an S3 Bucket named <S3BucketName> to hold your web app.
-- Creates a DynamoDB table named <DynamoDBTableName> in which votes will be stored
-- Creates a DynamoDB table named <AggregatesTableName> in which vote totals will be aggregated
+- Creates a DynamoDB table named `VoteApp` in which votes will be stored
+- Creates a DynamoDB table named `VoteAppAggregates` in which vote totals will be aggregated
 - Creates a Lambda function that allows your application receive votes
 - Creates a Lambda function that allows your application to aggregate votes
 - Creates an IAM Role and Policy to allow Lambda Functions to write to CloudWatch Logs and write and query the DynamoDB tables
@@ -25,7 +25,7 @@ The services and resources configured by the CloudFormation template can be test
 
 This demo demonstrates receiving votes via text message from users via a phone number. To duplicate the system built by this architecture, you will need to setup a phone number with third-party, like [Twilio](http://twilio.com). For full details, read [our post](https://medium.com/aws-activate-startup-blog/building-dynamic-dashboards-using-aws-lambda-and-amazon-dynamodb-streams-part-ii-b2d883bebde5) on the [AWS Startup Collection at Medium](https://medium.com/aws-activate-startup-blog).
 
-Step 1 - Create a CloudFormation Stack with the [template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda_webapp.template) using a lowercase name for the stack
+Step 1 - Create a CloudFormation Stack with the [template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda_webapp.template) using a lowercase name for the stack.
 
 Step 2 - Visit the [API Gateway dashboard](https://console.aws.amazon.com/apigateway/home) in your AWS account and create a new resource with a `/vote` endpoint. Assign a POST method that has the `Integration Request` type of "Lambda Function," and point to the Lambda function created by the CloudFormation script that receives votes from your third-party voting service (in this example, Twilio).
 
