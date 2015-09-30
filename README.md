@@ -31,9 +31,9 @@ Step 2 - Visit the [API Gateway dashboard](https://console.aws.amazon.com/apigat
 
 Under `Mapping Templates`, set the "Content-Type" to `application/x-www-form-urlencoded`, and add [this mapping template](https://github.com/awslabs/lambda-refarch-webapp/blob/master/apigateway-mappingtemplate.txt).
 
-Step 3 - Visit the [Amazon Cognito dashboard](https://console.aws.amazon.com/cognito/home) and create a new identity pool that enables access to unauthenticated identities. Modify the policy document to allow read access to the aggregates DynamoDB table created by the CloudFormation script above. This will allow unauthenticated users to retrieve data from the vote aggregation table in DynamoDB. Cognito will provide sample code for the JavaScript platform. Copy the value for Identity Pool ID and replace the `<your-identity-pool-id-here>` section of the refresh.js code with your own identity pool ID (step 4).
+Step 3 - Visit the [Amazon Cognito dashboard](https://console.aws.amazon.com/cognito/home) and create a new identity pool that enables access to unauthenticated identities. Modify the policy document to allow read access to the aggregates DynamoDB table created by the CloudFormation script above. This will allow unauthenticated users to retrieve data from the vote aggregation table in DynamoDB. Cognito will provide sample code for the JavaScript platform. Note the value for Identity Pool ID, you'll need it in step 4.
 
-Step 4 - Open `refresh.js` and replace default values of region, identity-pool-id, and DynamoDB tables with your own values. Save your changes and place in your static S3 bucket.
+Step 4 - Copy the HTML, CSS, and JS files from this repo and into the static S3 bucket that was created to hold your dashboard. You'll need to open `refresh.js` and replace default values of `region` and `identity-pool-id` with your own values.
 
 Congratulations! You now should have a working example of the reference architecture. You are able to receive votes in real time, tune your DynamoDB table to handle various levels of incoming traffic, and watch your results change on your dashboard in real time!
 
