@@ -22,6 +22,7 @@ The architecture described in this [diagram](https://s3.amazonaws.com/awslambda-
 The services and resources configured by the CloudFormation template can be tested with the HTML page `index.html`, which relies on the HTML, JavaScript, and CSS files found in this repo. You can copy these files to the S3 bucket created by the CloudFormation script.
 
 ## Instructions
+
 This demo demonstrates receiving votes via text message from users via a phone number. To duplicate the system built by this architecture, you will need to setup a phone number with third-party, like [Twilio](http://twilio.com). For full details, read [our post](https://medium.com/aws-activate-startup-blog/building-dynamic-dashboards-using-aws-lambda-and-amazon-dynamodb-streams-part-ii-b2d883bebde5) on the [AWS Startup Collection at Medium](https://medium.com/aws-activate-startup-blog).
 
 Step 1 - Create a CloudFormation Stack with the [template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda_webapp.template) using a lowercase name for the stack
@@ -35,7 +36,6 @@ Step 3 - Visit the [Amazon Cognito dashboard](https://console.aws.amazon.com/cog
 Step 4 - Open `refresh.js` and replace default values of region, identity-pool-id, and DynamoDB tables with your own values. Save your changes and place in your static S3 bucket.
 
 Congratulations! You now should have a working example of the reference architecture. You are able to receive votes in real time, tune your DynamoDB table to handle various levels of incoming traffic, and watch your results change on your dashboard in real time!
-
 
 ## Cleanup
 
