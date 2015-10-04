@@ -29,7 +29,7 @@ Step 1 – Create an AWS CloudFormation stack with the [template](https://s3.ama
 
 Step 2 – Visit the [API Gateway dashboard](https://console.aws.amazon.com/apigateway/home) in your AWS account and create a new resource with a `/vote` endpoint. Assign a POST method that has the `Integration Request` type of "Lambda Function," and point to the Lambda function created by the AWS CloudFormation script that receives votes from your third-party voting service (in this example, Twilio).
 
-Under `Mapping Templates`, set the "Content-Type" to `application/x-www-form-urlencoded`, and add [this mapping template](https://github.com/awslabs/lambda-refarch-webapp/blob/master/apigateway-mappingtemplate.txt).
+Under `Mapping Templates`, set the "Content-Type" to `application/x-www-form-urlencoded`, and add [this mapping template](apigateway-mappingtemplate.txt).
 
 Step 3 – Visit the [Amazon Cognito dashboard](https://console.aws.amazon.com/cognito/home) and create a new identity pool that allows access to unauthenticated identities. Modify the policy document to allow read access to the aggregates DynamoDB table created by the AWS CloudFormation script above. This allows unauthenticated users to retrieve data from the vote aggregation table in DynamoDB. Amazon Cognito will provide sample code for the JavaScript platform. Note the value for identity pool ID; you'll need it in step 4.
 
