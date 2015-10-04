@@ -39,7 +39,7 @@ Congratulations! You now should have a working example of the reference architec
 
 ## Worth Noting
 
-The AWS CloudFormation script will create two DynamoDB tables for you. Although you are able to specify the read and write capacity through the AWS CloudFormation script, you are not able to specify the table names in the script. This is because the JavaScript code that receives and aggregates votes must know the names of that tables (_VoteApp_ and _VoteAppAggregates_) in advance. If you would like to change the names of your DynamoDB tables, make sure to change the names in the JavaScript files themselves in the archives found in both [the aggregate archive](http://s3-website-us-east-1.amazonaws.com/awslambda-reference-architectures/web-app/aggregate.zip) and [the receiving archive](http://s3-website-us-east-1.amazonaws.com/awslambda-reference-architectures/web-app/receive.zip).
+The AWS CloudFormation script will create two DynamoDB tables for you. Although you are able to specify the read and write capacity through the AWS CloudFormation script, you are not able to specify the table names in the script. This is because the JavaScript code that receives and aggregates votes must know the names of that tables (_VoteApp_ and _VoteAppAggregates_) in advance. If you would like to change the names of your DynamoDB tables, make sure to change the names in the JavaScript files themselves in the code found in both [the aggregate source](/lambda-functions/aggregate-votes/) and [the receiving source](/lambda-functions/receive-vote/).
 
 ## Cleanup
 
