@@ -1,0 +1,4 @@
+AWS Lambda Reference Architecture:  Web Application
+lambda-refarch-webapp
+Copyright 2015 Amazon.com, Inc. or its affiliates. 
+All Rights Reserved. 
