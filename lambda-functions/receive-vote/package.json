@@ -8,7 +8,6 @@
   },
   "author": "jeffnunn@amazon.com",
   "dependencies": {
-    "twilio": ">= 2.0.0",
-    "aws-sdk": ">= 2.1.25"
+    "twilio": ">= 2.0.0"
   }
 }
