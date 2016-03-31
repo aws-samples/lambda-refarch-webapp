@@ -1,6 +1,6 @@
-# AWS Lambda Reference Architecture: Web Applications
+# Serverless Reference Architecture: Web Applications
 
-AWS Lambda Reference Architecture illustrating how to build dynamic web applications using AWS Lambda and Amazon API Gateway to authenticate and process API requests.
+Serverless Reference Architecture illustrating how to build dynamic web applications using [AWS Lambda](http://aws.amazon.com/lambda/) and Amazon API Gateway to authenticate and process API requests.
 
 By combining AWS Lambda with other AWS services, developers can build powerful web applications that automatically scale up and down and run in a highly available configuration across multiple data centers&mdash;with zero administrative effort required for scalability, backups, or multi–data center redundancy.
 
