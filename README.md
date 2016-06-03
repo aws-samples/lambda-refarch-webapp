@@ -1,4 +1,7 @@
 # Serverless Reference Architecture: Web Applications
+README Languages:  [DE](README/README-DE.md) | [ES](README/README-ES.md) | [FR](README/README-FR.md) | [IT](README/README-IT.md) | [JP](README/README-JP.md) | [KR](README/README-KR.md) |
+[PT](README/README-PT.md) | [RU](README/README-RU.md) |
+[CN](README/README-CN.md) | [TW](README/README-TW.md)
 
 Serverless Reference Architecture illustrating how to build dynamic web applications using [AWS Lambda](http://aws.amazon.com/lambda/) and Amazon API Gateway to authenticate and process API requests.
 
@@ -22,7 +25,7 @@ The architecture described in this [diagram](https://s3.amazonaws.com/awslambda-
 The services and resources configured by the AWS CloudFormation template can be tested with the HTML page `index.html`, which relies on the HTML, JavaScript, and CSS files found in this repo. You can copy these files to the S3 bucket created by the AWS CloudFormation script.
 
 ## Instructions
-**Important:** The provided CloudFormation template retreives its Lambda code from a bucket in the us-east-1 region. To launch this sample in another region, please modify the template and upload the Lambda code to a bucket in that region. 
+**Important:** The provided CloudFormation template retreives its Lambda code from a bucket in the us-east-1 region. To launch this sample in another region, please modify the template and upload the Lambda code to a bucket in that region.
 
 This example demonstrates receiving votes via text message from users via a phone number. To duplicate the system built by this architecture, you will need to set up a phone number with a third party, like [Twilio](http://twilio.com). For full details, read [our post](https://medium.com/aws-activate-startup-blog/building-dynamic-dashboards-using-aws-lambda-and-amazon-dynamodb-streams-part-ii-b2d883bebde5) on the [AWS Startup Collection at Medium](https://medium.com/aws-activate-startup-blog).
 
