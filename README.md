@@ -35,7 +35,7 @@ Step 2 – Visit the [API Gateway dashboard](https://console.aws.amazon.com/apig
 
 Under `Body Mapping Templates`, set the "Content-Type" to `application/x-www-form-urlencoded`, and add [this mapping template](apigateway-mappingtemplate.txt).
 
-Step 3 – Visit the [Amazon Cognito dashboard](https://console.aws.amazon.com/cognito/home) and create a new identity pool that allows access to unauthenticated identities. Modify the policy document to allow read access to the aggregates DynamoDB table created by the AWS CloudFormation script above. This allows unauthenticated users to retrieve data from the vote aggregation table in DynamoDB. Amazon Cognito will provide sample code for the JavaScript platform. Note the value for identity pool ID; you'll need it in step 5.
+Step 3 – Visit the [Amazon Cognito dashboard](https://console.aws.amazon.com/cognito/home) and create a new identity pool that allows access to unauthenticated identities. Modify the policy document to allow `GetItem` and `Scan` access to the aggregates DynamoDB table created by the AWS CloudFormation script above. This allows unauthenticated users to retrieve data from the vote aggregation table in DynamoDB. Amazon Cognito will provide sample code for the JavaScript platform. Note the value for identity pool ID; you'll need it in step 5.
 
 Step 4 – In the __VoteApp__ table in DynamoDB, create a new [Trigger](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.Lambda.html), and point it to the existing Lambda function to [aggregate votes](lambda-functions/aggregate-votes/app.js). This function will monitor any changes to your __VoteApp__ table, writing new, aggregate values into __VoteAppAggregates__.
 
