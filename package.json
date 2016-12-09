@@ -1,0 +1,19 @@
+{
+  "name": "serverless-web-refarch",
+  "version": "1.0.0",
+  "description": "AWS Serverless Web Reference Architecture",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://APKAJA754PMPEG76E5EQ@git-codecommit.us-east-1.amazonaws.com/v1/repos/serverless-web-refarch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-phantomas": "^0.8.0"
+  }
+}

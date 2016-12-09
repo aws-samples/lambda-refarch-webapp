@@ -1,0 +1,66 @@
+<md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right">
+  <md-toolbar class="md-theme-light">
+    <h1 class="md-toolbar-tools">
+      <div layout="row" 
+        layout-align="end start">
+      <md-button ng-click="vm.close()" 
+          class="md-icon-button" 
+          aria-label="Menu">
+          <md-icon>close</md-icon>
+        </md-button>
+      </div>
+      User Menu
+    </h1>
+  </md-toolbar>
+
+  <md-content layout-padding>  
+      <form layout="column" ng-submit="vm.login()" ng-if="!vm.authenticated">
+          <md-input-container>
+            <label for="emailInput">Email</label>
+            <input type="email" id="emailInput"
+                   ng-model="vm.user.email" md-autofocus>
+          </md-input-container>
+          <md-input-container>
+            <label for="passInput">Password</label>
+            <input type="password" id="passInput"
+                   ng-model="vm.user.password">
+          </md-input-container>
+          <md-input-container ng-if="vm.register">
+            <label for="passInput">Confirm Password</label>
+            <input type="password" id="passInput2"
+                   ng-model="vm.user.password2">
+          </md-input-container>
+
+          <md-switch ng-model="vm.register" aria-label="Register" class="md-warn">
+            Register
+          </md-switch>
+
+          <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.loading || !vm.user.email && !vm.user.password" aria-label="Login">
+            <div layout="row" layout-align="center" ng-if="vm.loading">
+              <div data-loader="ball-fade"></div>
+            </div>
+            <div ng-if="!vm.loading">
+              {{ (vm.register)?'Register':'Login' }}
+            </div>
+          </md-button>
+        </form>
+
+        <form layout="column" ng-submit="vm.logout()" ng-if="vm.authenticated">
+          <md-subheader>Logged in as <strong>{{vm.user.email}}</strong></md-subheader>
+          <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.loading" aria-label="Logout">
+            <div layout="row" layout-align="center" ng-if="vm.loading">
+              <div data-loader="ball-fade"></div>
+            </div>
+            <div ng-if="!vm.loading">
+              Logout
+            </div>
+          </md-button>
+        </form>
+
+        <div layout="column" layout-fill>
+        <md-button ng-if="vm.authenticated" class="md-raised" ng-href="/#/create" ng-click="vm.close()">Create Post</md-button>
+        </div>
+
+  </md-content>
+
+</md-sidenav>

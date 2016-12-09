@@ -1,0 +1,35 @@
+.post-content {
+	text-align: center;
+}
+
+.jumbotron h1 a {
+	color: white;
+	text-decoration: none;
+}
+
+.jumbotron h1 a:hover {
+	text-decoration: underline;
+}
+
+.published-date {
+	color:silver;
+}
+
+.comment-body {
+	padding-top:5px;
+	padding-bottom:10px;
+}
+
+.comment-date {
+	padding-bottom:15px;
+}
+
+.comment-who {
+	padding-top:10px;
+	color: blue;
+}
+
+.comment-list-item {
+	padding: 10px;
+	min-height:100px;
+}

@@ -1,57 +1,209 @@
-# Serverless Reference Architecture: Web Applications
-README Languages:  [DE](README/README-DE.md) | [ES](README/README-ES.md) | [FR](README/README-FR.md) | [IT](README/README-IT.md) | [JP](README/README-JP.md) | [KR](README/README-KR.md) |
-[PT](README/README-PT.md) | [RU](README/README-RU.md) |
-[CN](README/README-CN.md) | [TW](README/README-TW.md)
+# Serverless Reference Architecture:  Web Application
 
-Serverless Reference Architecture illustrating how to build dynamic web applications using [AWS Lambda](http://aws.amazon.com/lambda/) and Amazon API Gateway to authenticate and process API requests.
+The Serverless Web Application ([diagram](https://s3.amazonaws.com/awslambda-serverless-web-refarch/RefArch_BlogApp_Serverless.png)) demonstrates how to use [AWS Lambda](http://aws.amazon.com/lambda/) in conjunction with [Amazon API Gateway](http://aws.amazon.com/api-gateway/), [Amazon DynamoDB](http://aws.amazon.com/dynamodb/), [Amazon S3](http://aws.amazon.com/s3/), and [Amazon Cognito](http://aws.amazon.com/cognito/) to build a serverless web application.  
 
-By combining AWS Lambda with other AWS services, developers can build powerful web applications that automatically scale up and down and run in a highly available configuration across multiple data centers&mdash;with zero administrative effort required for scalability, backups, or multi–data center redundancy.
+The site is a simple blog application that allows users to log in and create posts and comments. By leveraging these services, you can build cost-efficient web applications that don't require the overhead of managing servers.
 
-This example looks at using AWS Lambda and Amazon API Gateway to build a dynamic voting application, which receives votes via SMS, aggregates the totals into Amazon DynamoDB, and uses Amazon Simple Storage Service (Amazon S3)to display the results in real time.
+This repository contains sample code for all the Lambda functions that make up the back end of the application, as well as an AWS CloudFormation template for creating the functions, API, DynamoDB tables, Amazon Cognito identity pool, and related resources.
 
-The architecture described in this [diagram](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda-refarch-webapp.pdf) can be created with an AWS CloudFormation template.
+## Running the example
 
-[The template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda_webapp.template) does the following:
+The entire example system can be deployed in us-east-1 using the provided CloudFormation template and an S3 bucket.
 
-- Creates an S3 bucket named <S3BucketName\> to hold your web app.
-- Creates a DynamoDB table named `VoteApp` to store votes
-- Creates a DynamoDB table named `VoteAppAggregates` to aggregate vote totals
-- Creates a Lambda function that allows your application to receive votes
-- Creates a Lambda function that allows your application to aggregate votes
-- Creates an AWS Identity and Access Management (IAM) role and policy to allow Lambda functions to write to Amazon CloudWatch Logs and write and query the DynamoDB tables
+Choose **Launch Stack** to launch the template in the us-east-1 region in your account:
 
-## Dynamic Dashboard
+[![Launch Serverless Web Application into North Virginia with CloudFormation](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/images/cloudformation-launch-stack-button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=serverless-web-refarch&templateURL=https://s3.amazonaws.com/awslambda-serverless-web-refarch/serverless-web-master.template)
 
-The services and resources configured by the AWS CloudFormation template can be tested with the HTML page `index.html`, which relies on the HTML, JavaScript, and CSS files found in this repo. You can copy these files to the S3 bucket created by the AWS CloudFormation script.
+After the stack is successfully created, you need to finish the configuration.
 
-## Instructions
-**Important:** The provided CloudFormation template retreives its Lambda code from a bucket in the us-east-1 region. To launch this sample in another region, please modify the template and upload the Lambda code to a bucket in that region.
+- Follow the instructions to minify the website code and push it to S3.  See the [website readme](http://s3.amazonaws.com/awslambda-serverless-web-refarch/website/Readme.md) for step-by-step instructions. Follow the **Updating the API Gateway SDK**, **Updating the Amazon Cognito identity ID and AWS region**, **Building**, and **Production Build** sections.  
+- After you have done this, upload the website to the S3 bucket that you created via the CloudFormation script (that is, the bucket you specified for the `Hosting Bucket` parameter).
 
-This example demonstrates receiving votes via text message from users via a phone number. To duplicate the system built by this architecture, you will need to set up a phone number with a third party, like [Twilio](http://twilio.com). For full details, read [our post](https://medium.com/aws-activate-startup-blog/building-dynamic-dashboards-using-aws-lambda-and-amazon-dynamodb-streams-part-ii-b2d883bebde5) on the [AWS Startup Collection at Medium](https://medium.com/aws-activate-startup-blog).
+## Testing the example
 
-Step 1 – Create an AWS CloudFormation stack with the [template](https://s3.amazonaws.com/awslambda-reference-architectures/web-app/lambda_webapp.template) using a lowercase name for the stack.
+After you've successfully uploaded the updated website to S3, go to the URL for the website.  You can find this URL listed in the outputs for the CloudFormation stack you ran earlier, listed as **WebsiteURL**. At this point, your website is up and running. Feel free to interact with it, create posts, comments, etc.
 
-Step 2 – Visit the [API Gateway dashboard](https://console.aws.amazon.com/apigateway/home) in your AWS account and create a new resource with a `/vote` endpoint. Assign a POST method that has the `Integration Request` type of "Lambda Function," and point to the Lambda function created by the AWS CloudFormation script that receives votes from your third-party voting service (in this example, Twilio).
+## Cleaning up the example resources
 
-Under `Body Mapping Templates`, set the "Content-Type" to `application/x-www-form-urlencoded`, and add [this mapping template](apigateway-mappingtemplate.txt).
+To remove all resources created by this example, do the following:
 
-Step 3 – Visit the [Amazon Cognito dashboard](https://console.aws.amazon.com/cognito/home) and create a new identity pool that allows access to unauthenticated identities. Modify the policy document to allow `GetItem` and `Scan` access to the aggregates DynamoDB table created by the AWS CloudFormation script above. This allows unauthenticated users to retrieve data from the vote aggregation table in DynamoDB. Amazon Cognito will provide sample code for the JavaScript platform. Note the value for identity pool ID; you'll need it in step 5.
+1. Delete all objects from the `Hosting Bucket` created by the CloudFormation stack.
+1. Delete the CloudFormation stack.
+1. Delete all CloudWatch log groups for each of the Lambda functions in the stack.
+1. Delete the Amazon Cognito identity pool.
 
-Step 4 – In the __VoteApp__ table in DynamoDB, create a new [Trigger](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.Lambda.html), and point it to the existing Lambda function to [aggregate votes](lambda-functions/aggregate-votes/app.js). This function will monitor any changes to your __VoteApp__ table, writing new, aggregate values into __VoteAppAggregates__.
+## CloudFormation template resources
 
-Step 5 – Copy the HTML, CSS, and JS files from this repo and into the static S3 bucket that was created to hold your dashboard. You'll need to open `refresh.js` and replace default values of `region` and `identity-pool-id` with your own values.
+The following sections explain all of the resources created by the CloudFormation template provided with this example.
 
-Congratulations! You now should have a working example of the reference architecture. You are able to receive votes in real time, tune your DynamoDB table to handle various levels of incoming traffic, and watch your results change on your dashboard in real time!
+### Website
 
-## Worth Noting
+- **WebsiteBucket** - An S3 bucket for the static assets of the web application.  The front-end JavaScript is uploaded to this bucket.
 
-The AWS CloudFormation script will create two DynamoDB tables for you. Although you are able to specify the read and write capacity through the AWS CloudFormation script, you are not able to specify the table names in the script. This is because the JavaScript code that receives and aggregates votes must know the names of that tables (_VoteApp_ and _VoteAppAggregates_) in advance. If you would like to change the names of your DynamoDB tables, make sure to change the names in the JavaScript files themselves in the code found in both [the aggregate source](/lambda-functions/aggregate-votes/) and [the receiving source](/lambda-functions/receive-vote/).
+### Lambda functions
 
-## Cleanup
+- **LambdaCreationHelperStack** - A sub-stack that creates a custom resource for writing entries to `ConfigTable`. This stack creates a Lambda function and execution role that grants UpdateItem permission on `ConfigTable`.
 
-To remove all automatically created resources, delete the AWS CloudFormation stack. You will need to manually remove the API Gateway endpoint and the Amazon Cognito identity pool.
+- **SaveCommentFunction** - A Lambda function that saves a comment to `DDBCommentTable`.
 
-Note: Deletion of the S3 bucket will fail unless all files in the bucket are removed before the stack is deleted.
+- **FindCommentsFunction** - A Lambda function that finds the comments in `DDBCommentTable` for a particular post.
+
+- **FindCommentFunction** - A Lambda function that finds a single comment in `DDBCommentTable`.
+
+- **SavePostFunction** - A Lambda function that saves a post to `DDBPostTable`.
+
+- **FindForumsFunction** - A Lambda function that finds all the forums in `DDBForumTable`.
+
+- **FindPostsFunction** - A Lambda function that finds all the latest posts for a forum in the `DDBLatestPostTable`.
+
+- **FindPostFunction** - A Lambda function that finds a single post in `DDBPostTable`.
+
+- **SaveUserFunction** - A Lambda function that saves a user to `DDBUserTable`.
+
+- **AuthenticateUserFunction** - A Lambda function that authenticates a user against `DDBPostTable`.
+
+### Function roles
+
+- **LambdaToDynamoDBUserTableRole** - An AWS Identity and Access Management (IAM) role assumed by the `SaveUserFunction` and `AuthenticateUserFunction` functions. This role provides logging permissions and access to the `DDBUserTable` and the `DDBConfigTable` tables. It also enables the function to call Amazon Cognito and get an Open ID token for the user.
+
+- **LambdaToDynamoDBPostTableRole** - An IAM role assumed by the `SavePostFunction`, `FindPostsFunction`, and `FindPostFunction` functions. This role provides logging permissions and access to the `DDBPostTable`, `DDBConfigTable`, and the `DDBLatestPostTable` tables.
+
+- **LambdaToDynamoDBCommentTableRole** - An IAM role assumed by the `SaveCommentFunction`, `FindCommentsFunction`, and `FindCommentFunction` functions. This role provides logging permissions and access to the `DDBCommentTable` and the `DDBConfigTable` tables.
+
+- **LambdaToDynamoDBForumTableRole** - An IAM role assumed by the _____ function.  This role provides logging permissions and access to the `DDBForumTable` and the `DDBConfigTable` table.
+
+### API Gateway resources
+
+- **ApiCreationHelperStack** - A sub-stack that creates all the API Gateway resources, methods, and mapping templates.
+
+- **APIGWToLambda** - An IAM role that gives API Gateway permissions to execute the Lambda functions.
+
+- **APIGWRESTAPI** - Creates the API.
+
+- **APIGWRESTAPIlogin** - The login resource.
+
+- **APIGWRESTAPIloginPOST** - The POST method on the login resource.
+
+- **APIGWRESTAPIloginOPTIONS** - The OPTIONS method on the login resource.
+
+- **APIGWRESTAPIuser** - The user resource.
+
+- **APIGWRESTAPIuserPOST** - The POST method on the user resource.
+
+- **APIGWRESTAPIuserOPTIONS** - The OPTIONS method on the user resource.
+
+- **APIGWRESTAPIforums** - The forums resource.
+
+- **APIGWRESTAPIforumsGET** - The GET method that returns all forums.
+
+- **APIGWRESTAPIforumsOPTIONS** - The OPTIONS method on the forums resource.
+
+- **APIGWRESTAPIforum** - The {id} resource representing a forum.
+
+- **APIGWRESTAPIforumposts** - The {id}/posts resource representing posts within a forum.
+
+- **APIGWRESTAPIforumpostsGET** - The GET method on the {id}/posts resource
+
+- **APIGWRESTAPIforumpostsPOST** - The POST method on the {id}/posts resource
+
+- **APIGWRESTAPIforumpostsOPTIONS** - The OPTIONS method on the {id}/posts resource
+
+- **APIGWRESTAPIposts** - The post resource.
+
+- **APIGWRESTAPIpost** - The posts/{id} resource representing a post.
+
+- **APIGWRESTAPIpostGET** - The GET method on the posts/{id} resource.
+
+- **APIGWRESTAPIpostOPTIONS** - The OPTIONS method on the posts/{id} resource.
+
+- **APIGWRESTAPIcomments** - The {id}/comment resource.
+
+- **APIGWRESTAPIcommentsGET** - The GET method on the {id}/comment resource.
+
+- **APIGWRESTAPIcommentsPOST** - The POST method on the {id}/comment resource.
+
+- **APIGWRESTAPIcommentsOPTIONS** - The OPTIONS method on the {id}/comment resource.
+
+- **APIGWRESTAPIcomment** - The {id}/comment/{created-at} resource.
+
+- **APIGWRESTAPIcommentGET** - The GET method on the {id}/comment/{created-at} resource.
+
+- **APIGWRESTAPIcommentOPTIONS** - The OPTIONS method on the {id}/comment/{created-at} resource.
+
+- **APIGWRESTAPIDeployment** - The deployment of the specified stage for the API.
+
+
+### DynamoDB tables
+
+- **DDBPostTable** - DynamoDB table that stores the post data.
+
+- **DDBCommentTable** - DynamoDB table that stores the comment data.
+
+- **DDBUserTable** - DynamoDB table that stores the user data.
+
+- **DDBForumTable** - DynamoDB table that stores the forum data.
+
+- **DDBLatestPostTable** - DynamoDB table that stores information on the latest posts for a forum.
+
+### Amazon Cognito
+
+- **AuthenticatedBlogUserPolicy** - IAM policy containing the list of API endpoints on which authenticated users in Cognito can call.
+
+- **UnauthenticatedBlogUserPolicy** - IAM policy containing the list of API endpoints on which unauthenticated users in Cognito can call.
+
+- **CognitoCreationHelperStack** - A sub-stack that creates the IAM roles for Amazon Cognito and has custom resources for creating the identity pool.
+
+- **CognitoServerlessBlogUnauthenticatedRole** - IAM role that users who are NOT authenticated assume when interacting with the blog site. This role has the `UnauthenticatedBlogUserPolicy`  policy attached.
+
+- **CognitoServerlessBlogAuthenticatedRole** - IAM role that users who are authenticated assume when interacting with the blog site. This role has the `UnauthenticatedBlogUserPolicy` and ` AuthenticatedBlogUserPolicy` policies attached.
+
+- **LambdaCognitoExecutionRole** - IAM role that the custom resource Lambda function executes under.  
+
+- **CreateCognitoPoolResource** - Custom resource that calls the Lambda function `AddCognitoIdentityPool`.
+
+- **AddCognitoIdentityPool** - Lambda function for creating the Amazon Cognito identity pool.  Also updates LambdaToDynamoDBUserTableRole to add permissions to call the GetOpenIdTokenForDeveloperIdentity function on the Amazon Cognito identity pool just created.
+
+- **UpdateCognitoPoolResource** - Custom resource that calls the Lambda function `UpdateCognitoIdentityPool`.
+
+- **UpdateCognitoIdentityPool** - Lambda function that updates the Amazon Cognito identity pool with the unauthenticated and authenticated IAM roles, `CognitoServerlessBlogUnauthenticatedRole` and ` CognitoServerlessBlogAuthenticatedRole` respectively.  
+
+### Other resources
+
+- **KmsCMK** - The customer master key (CMK) in KMS for encrypting user data in DynamoDB
+
+### Configuration
+
+- **DDBConfigTable** - A DynamoDB table to hold configuration values read by the various Lambda functions. The name of this table, "aws-serverless-config", is hard-coded into each function's code and cannot be modified without updating the code as well.
+
+- **ConfigHelperStack** - A sub-stack that creates a custom resource for writing entries to `ConfigTable`. This stack creates a Lambda function and execution role that grants UpdateItem permission on `ConfigTable`.
+
+- **DDBPostTableConfig** - Configures the DynamoDB post table name for the current environment.
+
+- **DDBCommentTableConfig** - Configures the DynamoDB comment table name for the current environment.
+
+- **DDBUserTableConfig** - Configures the DynamoDB user table name for the current environment.
+
+- **DDBForumTableConfig** - Configures the DynamoDB forum table name for the current environment.
+
+- **DDBLatestPostTableConfig** - Configures the DynamoDB latest post table name for the current environment.
+
+- **CognitoPoolIdConfig** - Configures the Amazon Cognito identity pool ID for the current environment.
+
+- **CognitoPoolDeveloperIdConfig** - Configures the Developer Provider Name for the Amazon Cognito identity pool for the current environment.
+
+- **KMSIdConfig** - Configures the key ID for the KMS CMK used for encrypting data in DynamoDB.
+
+- **PopulateForumsTable** - Custom CloudFormation resource which calls `PopulateForumsTableResource`
+
+- **PopulateForumsTableResource** - Lambda function which populates the DynamoDB forum table with generic values
+
+### Outputs
+
+- **API_endpoint** - This is the endpoint URL for your API Gateway deployed by the CloudFormation stack.
+
+- **WebsiteURL** - Once the website code is uploaded, this is the location of the website running on S3.
+
+- **CognitoIdentityPoolId** - This is the ID for the Cognito Identity Pool.
 
 ## License
 

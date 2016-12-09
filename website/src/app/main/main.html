@@ -1,0 +1,39 @@
+<div layout="vertical" layout-fill>
+
+  <md-content flex>
+
+    <jumbotron loading="{{vm.loading}}"></jumbotron>
+
+    <div layout="column" layout-align="center" layout-padding>
+
+      <form layout="row" layout-align="center" ng-hide="vm.loading" flex layout-fill>
+        <md-input-container class="md-icon-flat" flex>
+          <label for="testInput">Search</label>
+          <md-icon>search</md-icon>
+          <input type="text" id="testInput"
+                 ng-model="postSearch">
+        </md-input-container>
+        <md-input-container>
+          <forum-select forum="main.selectedForum"></forum-select>
+        </md-input-container>
+      </form>
+
+      <div layout-align="center">
+        <md-grid-list 
+            md-cols-xs="1" md-cols-sm="3" md-cols-md="4" md-cols-gt-md="6"
+            md-row-height-gt-md="1:1" md-row-height="2:2"
+            md-row-height-xs="1:1"
+            md-gutter="12px" md-gutter-gt-sm="2px">
+          <md-grid-tile 
+            md-colspan="1"
+            md-rowspan="1"
+            ng-repeat="post in main.posts | orderBy:'createdAt':true | filter:postSearch">
+          <post></post>
+          </md-grid-tile>
+        </md-grid-list>
+      </div>
+
+    </div>
+  </md-content>
+
+</div>

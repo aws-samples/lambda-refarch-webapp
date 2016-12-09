@@ -1,0 +1,310 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Parameters": {
+
+		"CognitoPoolDevID": {
+			"Description": "developer provider name for cognito identity pool",
+			"Type": "String"
+		},
+		"UnauthenticatedBlogUserPolicy": {
+			"Description": "IAM policy for unauth user",
+			"Type": "String"
+		},
+		"AuthenticatedBlogUserPolicy": {
+			"Description": "IAM policy for Authenticated user",
+			"Type": "String"
+		},
+		"LambdaUserRole": {
+			"Type": "String"
+		}
+	},
+
+	"Resources":
+    {
+
+			"CognitoServerlessBlogUnauthenticatedRole": {
+					 "Type": "AWS::IAM::Role",
+					 "Properties": {
+							"AssumeRolePolicyDocument": {
+								"Version": "2012-10-17",
+								"Statement": [
+									{
+										"Effect": "Allow",
+										"Principal": {
+											"Federated": "cognito-identity.amazonaws.com"
+										},
+										"Action": "sts:AssumeRoleWithWebIdentity",
+										"Condition": {
+											"StringEquals": {
+														"cognito-identity.amazonaws.com:aud" : { "Fn::Join" : [ "", [
+																"",
+																{ "Fn::GetAtt": [ "CreateCognitoPoolResource", "identityPoolId" ] }
+																]]}
+													},
+											"ForAnyValue:StringLike": {
+												"cognito-identity.amazonaws.com:amr": "unauthenticated"
+											}
+										}
+									}
+								]
+							},
+							"ManagedPolicyArns": [ {"Ref": "UnauthenticatedBlogUserPolicy"}],
+							"Path": "/",
+							"Policies": [ {
+								 "PolicyName": "root",
+								 "PolicyDocument": {
+											"Version": "2012-10-17",
+											"Statement": [
+												{
+													"Effect": "Allow",
+													"Action": [
+														"mobileanalytics:PutEvents",
+														"cognito-sync:*",
+														"cognito-identity:*"
+													],
+													"Resource": [
+														"*"
+													]
+												}
+											]
+										}
+								 } ]
+							}
+				},
+
+				"CognitoServerlessBlogAuthenticatedRole": {
+						 "Type": "AWS::IAM::Role",
+						 "Properties": {
+								"AssumeRolePolicyDocument": {
+									"Version": "2012-10-17",
+									"Statement": [
+										{
+											"Effect": "Allow",
+											"Principal": {
+												"Federated": "cognito-identity.amazonaws.com"
+											},
+											"Action": "sts:AssumeRoleWithWebIdentity",
+											"Condition": {
+												"StringEquals": {
+															"cognito-identity.amazonaws.com:aud" : { "Fn::Join" : [ "", [
+																	"",
+																	{ "Fn::GetAtt": [ "CreateCognitoPoolResource", "identityPoolId" ] }
+																	]]}
+														},
+												"ForAnyValue:StringLike": {
+													"cognito-identity.amazonaws.com:amr": "authenticated"
+												}
+											}
+										}
+									]
+								},
+								"ManagedPolicyArns": [ {"Ref": "UnauthenticatedBlogUserPolicy"}, {"Ref": "AuthenticatedBlogUserPolicy"}],
+								"Path": "/",
+								"Policies": [ {
+									 "PolicyName": "root",
+									 "PolicyDocument": {
+												"Version": "2012-10-17",
+												"Statement": [
+													{
+														"Effect": "Allow",
+														"Action": [
+															"mobileanalytics:PutEvents",
+															"cognito-sync:*",
+															"cognito-identity:*"
+														],
+														"Resource": [
+															"*"
+														]
+													}
+												]
+											}
+									 } ]
+								}
+					},
+
+					"LambdaCognitoExecutionRole": {
+						"Type": "AWS::IAM::Role",
+						"Properties": {
+							"AssumeRolePolicyDocument": {
+								"Version": "2012-10-17",
+								"Statement": [{
+										"Effect": "Allow",
+										"Principal": {"Service": ["lambda.amazonaws.com"]},
+										"Action": ["sts:AssumeRole"]
+								}]
+							},
+							"Path": "/",
+							"Policies": [{
+								"PolicyName": "root",
+								"PolicyDocument": {
+									"Version": "2012-10-17",
+									"Statement": [{
+											"Effect": "Allow",
+											"Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"],
+											"Resource": "arn:aws:logs:*:*:*"
+									},
+									{
+										"Effect": "Allow",
+										"Action": ["cognito-identity:CreateIdentityPool","cognito-identity:SetIdentityPoolRoles","cognito-identity:UpdateIdentityPool"],
+										"Resource": "*"
+									},
+									{
+										"Effect": "Allow",
+										"Action": ["iam:putRolePolicy"],
+										"Resource": {"Ref": "LambdaUserRole"}
+									}]
+								}
+							}]
+						}
+					},
+
+					"CreateCognitoPoolResource": {
+						"Type": "Custom::CreateCognitoPoolResource",
+						"Properties": {
+							"ServiceToken": { "Fn::GetAtt" : ["AddCognitoIdentityPool", "Arn"] },
+							"CognitoDevId": {
+								"Ref": "CognitoPoolDevID"
+							},
+							"StackName": {
+								"Ref":"AWS::StackName"
+							},
+							"LambdaIAMRole": {
+								"Ref":"LambdaUserRole"
+							}
+						}
+					},
+
+					"AddCognitoIdentityPool": {
+						"DependsOn": "LambdaCognitoExecutionRole",
+						"Type": "AWS::Lambda::Function",
+						"Properties": {
+							"Handler": "index.handler",
+							"Runtime": "nodejs",
+							"Role": { "Fn::GetAtt" : ["LambdaCognitoExecutionRole", "Arn"] },
+							"Code": {
+								"ZipFile": {
+									"Fn::Join": ["\n", [
+										"var response = require('cfn-response');",
+										"var AWS = require('aws-sdk');",
+										"var cognitoidentity = new AWS.CognitoIdentity();",
+										"var iam = new AWS.IAM();",
+										"var responseData = {};",
+										"exports.handler = function(event, context) {",
+										"    console.log('REQUEST RECEIVED:', JSON.stringify(event));",
+										"    if (event.RequestType == 'Delete') {",
+										"        response.send(event, context, response.SUCCESS);",
+										"        return;",
+										"    }",
+										"    var poolName = event.ResourceProperties.StackName.split('-').join('');",
+										"    var params = {",
+										"      AllowUnauthenticatedIdentities: true,",
+										"      IdentityPoolName: poolName,",
+										"      DeveloperProviderName: event.ResourceProperties.CognitoDevId",
+										"    };",
+										"    cognitoidentity.createIdentityPool(params, function(err, data) {",
+										"      if(err) {",
+										"        console.log(JSON.stringify(err));",
+										"        responseData = {Error: JSON.stringify(err)};",
+										"        response.send(event, context, response.FAILED, responseData);",
+										"        return;",
+										"      } else {",
+										"        console.log(JSON.stringify(data));",
+										"        responseData['identityPoolId'] = data.IdentityPoolId;",
+										"        //update lambda function role to be able to get developer identities from cognito",
+										"        var rolename = event.ResourceProperties.LambdaIAMRole.split('role/')[1];",
+										"        var iamParams = {",
+										"           RoleName: rolename,",
+										"           PolicyName: 'getCognitoDevIdForLambda',",
+										"           PolicyDocument: '{\"Version\":\"2012-10-17\",\"Statement\":{\"Effect\":\"Allow\",\"Action\":\"cognito-identity:GetOpenIdTokenForDeveloperIdentity\",\"Resource\":'+",
+										{"Fn::Join" : [ "", ["'\"arn:aws:cognito-identity:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":identitypool/' + data.IdentityPoolId + '\"' + "]]},
+										"           '}}'",
+										"        };",
+										"        console.log(iamParams);",
+										"        iam.putRolePolicy(iamParams, function(err, data) { ",
+								    "             if (err) console.log(err, err.stack); // an error occurred",
+								    "             else     console.log(data);           // successful response",
+								    "        });",
+										"        response.send(event, context, response.SUCCESS, responseData);",
+										"        return;",
+										"      }",
+										"    });",
+										"};"
+									]]
+								}
+							},
+							"Timeout": "30"
+						}
+					},
+
+					"UpdateCognitoPoolResource": {
+						"Type": "Custom::UpdateCognitoPoolResource",
+						"Properties": {
+							"ServiceToken": { "Fn::GetAtt" : ["UpdateCognitoIdentityPool", "Arn"] },
+							"CognitoPoolId": {
+								"Fn::GetAtt": ["CreateCognitoPoolResource", "identityPoolId" ]
+							},
+							"AuthRole": {
+								"Fn::GetAtt" : ["CognitoServerlessBlogAuthenticatedRole", "Arn"]
+							},
+							"UnAuthRole":{
+								"Fn::GetAtt" : ["CognitoServerlessBlogUnauthenticatedRole", "Arn"]
+							}
+						}
+					},
+
+					"UpdateCognitoIdentityPool": {
+						"DependsOn": "LambdaCognitoExecutionRole",
+						"Type": "AWS::Lambda::Function",
+						"Properties": {
+							"Handler": "index.handler",
+							"Runtime": "nodejs",
+							"Role": { "Fn::GetAtt" : ["LambdaCognitoExecutionRole", "Arn"] },
+							"Code": {
+								"ZipFile": {
+									"Fn::Join": ["\n", [
+										"var response = require('cfn-response');",
+										"var AWS = require('aws-sdk');",
+										"var cognitoidentity = new AWS.CognitoIdentity();",
+										"var responseData = {};",
+										"exports.handler = function(event, context) {",
+										"    console.log('REQUEST RECEIVED:', JSON.stringify(event));",
+										"    if (event.RequestType == 'Delete') {",
+										"        response.send(event, context, response.SUCCESS);",
+										"        return;",
+										"    }",
+										"    var params = {",
+										"      IdentityPoolId: event.ResourceProperties.CognitoPoolId,",
+										"      Roles: { ",
+										"         authenticated: event.ResourceProperties.AuthRole,",
+										"         unauthenticated: event.ResourceProperties.UnAuthRole,",
+										"      }",
+										"    };",
+										"    cognitoidentity.setIdentityPoolRoles(params, function(err, data) {",
+										"       if(err) {",
+										"         console.log(JSON.stringify(err));",
+										"         responseData = {Error: JSON.stringify(err)};",
+										"         response.send(event, context, response.FAILED, responseData);",
+										"       } else {",
+										"         var message = \"Identity Pool roles successfully updated.\";",
+										"         console.log(message);",
+										"         response.send(event, context, response.SUCCESS);",
+										"       }",
+										"    });",
+										"};"
+									]]
+								}
+							},
+							"Timeout": "30"
+						}
+					}
+	},
+
+	"Outputs": {
+
+		"CognitoPoolId": {
+					"Value":
+					{ "Fn::GetAtt": [ "CreateCognitoPoolResource", "identityPoolId" ] },
+					"Description": "Prod stage deployment URL"
+			}
+	}
+}

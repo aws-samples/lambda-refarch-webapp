@@ -1,0 +1,782 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+
+	"Parameters": {
+		"Region": {
+			"Description": "The AWS region this is running in",
+			"Type": "String",
+			"Default": "us-east-1"
+		},
+
+		"HostingBucket": {
+			"Description": "S3 Bucket name for where the website should be hosted",
+			"Type": "String"
+		},
+
+		"CodeBucket": {
+			"Description": "S3 Bucket containing Lambda deployment packages and sub-stack templates",
+			"Type": "String",
+			"Default": "awslambda-serverless-web-refarch"
+		},
+
+		"CodeKeyPrefix": {
+			"Description": "The key prefix for all deployment packages and sub-stack templates within CodeBucket",
+			"Type": "String",
+			"Default": "code"
+		},
+
+		"APIStageName": {
+			"Description": "The name of the stage for the API deployment",
+			"Type": "String",
+			"Default": "prod"
+		},
+
+		"DynamoDBForumTableName": {
+			"Description": "the DynamoDB table name for the forum table",
+			"Type": "String",
+			"Default": "BlogForum"
+		},
+
+		"DynamoDBLatestPostTableName": {
+			"Description": "The DynamoDB table name for the Latest Posts table",
+			"Type": "String",
+			"Default": "LatestPostsInForum"
+		},
+
+		"DynamoDBPostTableName": {
+			"Description": "The DynamoDB table name for Posts",
+			"Type": "String",
+			"Default": "BlogPost"
+		},
+
+		"DynamoDBCommentTableName": {
+			"Description": "The DynamoDB table name for Comments",
+			"Type": "String",
+			"Default": "BlogComment"
+		},
+
+		"DynamoDBUserTableName": {
+			"Description": "The DynamoDB table name for Users",
+			"Type": "String",
+			"Default": "BlogUser"
+		},
+
+		"CognitoPoolDevID": {
+			"Description": "The name for your developer authenticated identity pool in Cognito",
+			"Type": "String",
+			"Default": "login.serverless.blog"
+		}
+	},
+
+	"Resources":
+    {
+			"WebsiteBucket" : {
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+         "AccessControl" : "PublicRead",
+         "BucketName" : {"Ref" : "HostingBucket"},
+         "WebsiteConfiguration" : {
+            "IndexDocument" : "index.html",
+            "ErrorDocument" : "error.html"
+         }
+      },
+      "DeletionPolicy" : "Delete"
+   },
+
+		"LambdaToDynamoDBUserTableRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": [
+								"lambda.amazonaws.com"
+							]
+						},
+						"Action": [
+							"sts:AssumeRole"
+						]
+					}]
+				},
+				"Path": "/",
+				"Policies": [{
+					"PolicyName": "LambdaWriteCWLogs",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowLogging",
+							"Effect": "Allow",
+							"Action": [
+								"logs:CreateLogGroup",
+								"logs:CreateLogStream",
+								"logs:PutLogEvents"
+							],
+							"Resource": "*"
+						}]
+					}
+				}, {
+					"PolicyName": "LambdaDDB_UserTable_ReadWrite",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowDynamoDB",
+							"Action": [
+								"dynamodb:DeleteItem",
+								"dynamodb:GetItem",
+								"dynamodb:BatchGetItem",
+								"dynamodb:PutItem",
+								"dynamodb:Query",
+								"dynamodb:Scan",
+								"dynamodb:UpdateItem"
+							],
+							"Effect": "Allow",
+							"Resource": [
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/", {"Ref": "DynamoDBUserTableName"}]]},
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/aws-serverless-config"]]}
+							]
+						}]
+					}
+				}
+				]
+			}
+		},
+
+		"LambdaToDynamoDBPostTableRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": [
+								"lambda.amazonaws.com"
+							]
+						},
+						"Action": [
+							"sts:AssumeRole"
+						]
+					}]
+				},
+				"Path": "/",
+				"Policies": [{
+					"PolicyName": "LambdaWriteCWLogs",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowLogging",
+							"Effect": "Allow",
+							"Action": [
+								"logs:CreateLogGroup",
+								"logs:CreateLogStream",
+								"logs:PutLogEvents"
+							],
+							"Resource": "*"
+						}]
+					}
+				}, {
+					"PolicyName": "LambdaDDB_PostTable_ReadWrite",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowDynamoDB",
+							"Action": [
+								"dynamodb:DeleteItem",
+								"dynamodb:GetItem",
+								"dynamodb:BatchGetItem",
+								"dynamodb:PutItem",
+								"dynamodb:Query",
+								"dynamodb:Scan",
+								"dynamodb:UpdateItem"
+							],
+							"Effect": "Allow",
+							"Resource": [
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/", {"Ref": "DynamoDBPostTableName"}]]},
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/", {"Ref": "DynamoDBLatestPostTableName"}]]},
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/aws-serverless-config"]]}
+							]
+						}]
+					}
+				}]
+			}
+		},
+
+		"LambdaToDynamoDBForumTableRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": [
+								"lambda.amazonaws.com"
+							]
+						},
+						"Action": [
+							"sts:AssumeRole"
+						]
+					}]
+				},
+				"Path": "/",
+				"Policies": [{
+					"PolicyName": "LambdaWriteCWLogs",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowLogging",
+							"Effect": "Allow",
+							"Action": [
+								"logs:CreateLogGroup",
+								"logs:CreateLogStream",
+								"logs:PutLogEvents"
+							],
+							"Resource": "*"
+						}]
+					}
+				}, {
+					"PolicyName": "LambdaDDB_ForumTable_ReadWrite",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowDynamoDB",
+							"Action": [
+								"dynamodb:DeleteItem",
+								"dynamodb:GetItem",
+								"dynamodb:BatchGetItem",
+								"dynamodb:PutItem",
+								"dynamodb:Query",
+								"dynamodb:Scan",
+								"dynamodb:UpdateItem"
+							],
+							"Effect": "Allow",
+							"Resource": [
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/", {"Ref": "DynamoDBForumTableName"}]]},
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/aws-serverless-config"]]}
+							]
+						}]
+					}
+				}]
+			}
+		},
+
+		"LambdaToDynamoDBCommentTableRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": [
+								"lambda.amazonaws.com"
+							]
+						},
+						"Action": [
+							"sts:AssumeRole"
+						]
+					}]
+				},
+				"Path": "/",
+				"Policies": [{
+					"PolicyName": "LambdaWriteCWLogs",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowLogging",
+							"Effect": "Allow",
+							"Action": [
+								"logs:CreateLogGroup",
+								"logs:CreateLogStream",
+								"logs:PutLogEvents"
+							],
+							"Resource": "*"
+						}]
+					}
+				}, {
+					"PolicyName": "LambdaDDB_CommentTable_ReadWrite",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Sid": "AllowDynamoDB",
+							"Action": [
+								"dynamodb:DeleteItem",
+								"dynamodb:GetItem",
+								"dynamodb:BatchGetItem",
+								"dynamodb:PutItem",
+								"dynamodb:Query",
+								"dynamodb:Scan",
+								"dynamodb:UpdateItem"
+							],
+							"Effect": "Allow",
+							"Resource": [
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/", {"Ref": "DynamoDBCommentTableName"}]]},
+								{"Fn::Join" : [ "", ["arn:aws:dynamodb:", {"Ref" : "AWS::Region"} , ":", {"Ref" : "AWS::AccountId"} ,":table/aws-serverless-config"]]}
+							]
+						}]
+					}
+				}]
+			}
+		},
+
+		"DDBForumTable": {
+			"DependsOn" : "LambdaToDynamoDBForumTableRole",
+			"Type": "AWS::DynamoDB::Table",
+			"Properties": {
+				"AttributeDefinitions": [{
+					"AttributeName": "id",
+					"AttributeType": "S"
+				}],
+				"KeySchema": [{
+					"AttributeName": "id",
+					"KeyType": "HASH"
+				}],
+				"ProvisionedThroughput": {
+					"ReadCapacityUnits": "5",
+					"WriteCapacityUnits": "5"
+				},
+				"TableName": { "Ref": "DynamoDBForumTableName" }
+			}
+		},
+
+		"DDBLatestPostTable": {
+			"DependsOn" : "LambdaToDynamoDBPostTableRole",
+			"Type": "AWS::DynamoDB::Table",
+			"Properties": {
+				"AttributeDefinitions": [{
+					"AttributeName": "forumId",
+					"AttributeType": "S"
+				},
+        {
+          "AttributeName" : "created_at",
+          "AttributeType" : "N"
+        }],
+				"KeySchema": [{
+					"AttributeName": "forumId",
+					"KeyType": "HASH"
+				},
+				{
+					"AttributeName": "created_at",
+					"KeyType": "RANGE"
+
+				}],
+				"ProvisionedThroughput": {
+					"ReadCapacityUnits": "5",
+					"WriteCapacityUnits": "5"
+				},
+				"TableName": { "Ref": "DynamoDBLatestPostTableName" }
+			}
+		},
+
+		"DDBPostTable": {
+			"DependsOn" : "LambdaToDynamoDBPostTableRole",
+			"Type": "AWS::DynamoDB::Table",
+			"Properties": {
+				"AttributeDefinitions": [{
+					"AttributeName": "id",
+					"AttributeType": "S"
+				}],
+				"KeySchema": [{
+					"AttributeName": "id",
+					"KeyType": "HASH"
+				}],
+				"ProvisionedThroughput": {
+					"ReadCapacityUnits": "5",
+					"WriteCapacityUnits": "5"
+				},
+				"TableName": { "Ref": "DynamoDBPostTableName" }
+			}
+		},
+
+		"DDBCommentTable": {
+			"DependsOn" : "LambdaToDynamoDBCommentTableRole",
+			"Type": "AWS::DynamoDB::Table",
+			"Properties": {
+				"AttributeDefinitions": [{
+					"AttributeName": "postId",
+					"AttributeType": "S"
+				},
+        {
+          "AttributeName" : "created_at",
+          "AttributeType" : "N"
+        }],
+				"KeySchema": [{
+					"AttributeName": "postId",
+					"KeyType": "HASH"
+				},
+				{
+					"AttributeName": "created_at",
+					"KeyType": "RANGE"
+
+				}],
+				"ProvisionedThroughput": {
+					"ReadCapacityUnits": "5",
+					"WriteCapacityUnits": "5"
+				},
+				"TableName": { "Ref": "DynamoDBCommentTableName" }
+			}
+		},
+
+		"DDBUserTable": {
+			"DependsOn" : "LambdaToDynamoDBUserTableRole",
+			"Type": "AWS::DynamoDB::Table",
+			"Properties": {
+				"AttributeDefinitions": [{
+					"AttributeName": "email",
+					"AttributeType": "S"
+				}],
+				"KeySchema": [{
+					"AttributeName": "email",
+					"KeyType": "HASH"
+				}],
+				"ProvisionedThroughput": {
+					"ReadCapacityUnits": "5",
+					"WriteCapacityUnits": "5"
+				},
+				"TableName": { "Ref": "DynamoDBUserTableName" }
+			}
+		},
+
+		"LambdaCreationHelperStack": {
+					"Type" : "AWS::CloudFormation::Stack",
+					"Properties" : {
+						"TemplateURL" : {"Fn::Join": ["/", ["https://s3.amazonaws.com", {"Ref": "CodeBucket"}, {"Ref": "CodeKeyPrefix"}, "lambda-creation-helper.template"]]},
+						"Parameters" : {
+							"CodeBucket" : {"Ref": "CodeBucket"},
+							"CodeKeyPrefix": { "Ref": "CodeKeyPrefix" },
+							"LambdaToDynamoDBCommentTableRole" : {"Fn::GetAtt": ["LambdaToDynamoDBCommentTableRole","Arn"]},
+							"LambdaToDynamoDBPostTableRole" : {"Fn::GetAtt": ["LambdaToDynamoDBPostTableRole","Arn"]},
+							"LambdaToDynamoDBUserTableRole" : {"Fn::GetAtt": ["LambdaToDynamoDBUserTableRole","Arn"]},
+							"LambdaToDynamoDBForumTableRole": {"Fn::GetAtt": ["LambdaToDynamoDBForumTableRole","Arn"]}
+						},
+						"TimeoutInMinutes" : 10
+					}
+				},
+
+		"ApiCreationHelperStack": {
+          "Type" : "AWS::CloudFormation::Stack",
+          "Properties" : {
+            "TemplateURL" : {"Fn::Join": ["/", ["https://s3.amazonaws.com", {"Ref": "CodeBucket"}, {"Ref": "CodeKeyPrefix"}, "api-creation-helper.template"]]},
+            "Parameters" : {
+							"APIStageName" : {"Ref": "APIStageName"},
+              "AuthenticateUserFunction": { "Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.AuthenticateUserFunction"] },
+							"SaveUserFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.SaveUserFunction"] },
+							"SavePostFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.SavePostFunction"] },
+							"SaveCommentFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.SaveCommentFunction"] },
+							"FindPostFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.FindPostFunction"] },
+							"FindPostsFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.FindPostsFunction"] },
+							"FindForumsFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.FindForumsFunction"] },
+							"FindCommentsFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.FindCommentsFunction"] },
+							"FindCommentFunction" : {"Fn::GetAtt": ["LambdaCreationHelperStack", "Outputs.FindCommentFunction"] }
+            },
+            "TimeoutInMinutes" : 10
+          }
+        },
+
+				"UnauthenticatedBlogUserPolicy" : {
+					"DependsOn" : "ApiCreationHelperStack",
+					"Type" : "AWS::IAM::ManagedPolicy",
+					"Properties" : {
+						"Description" : "Policy for users in cognito who are unauthenticated to call API endpoints",
+						"Path" : "/",
+						"PolicyDocument" :   {
+							"Version":"2012-10-17",
+							"Statement" : [{
+								"Effect" : "Allow",
+								"Action" : "execute-api:Invoke",
+								"Resource" : [
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/GET/posts/*"]]},
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/GET/posts/*/comments"]]},
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/GET/posts/*/comments/*"]]},
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/GET/forums/*/posts"]]},
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/GET/forums"]]},
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/POST/users"]]},
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/POST/login"]]}
+								]
+							}]
+						}
+					}
+				},
+
+				"AuthenticatedBlogUserPolicy" : {
+					"DependsOn" : "ApiCreationHelperStack",
+					"Type" : "AWS::IAM::ManagedPolicy",
+					"Properties" : {
+						"Description" : "Policy for users in cognito who are unauthenticated to call API endpoints",
+						"Path" : "/",
+						"PolicyDocument" :   {
+							"Version":"2012-10-17",
+							"Statement" : [{
+								"Effect" : "Allow",
+								"Action" : "execute-api:Invoke",
+								"Resource" : [
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/POST/forums/*/posts"]]},
+									{"Fn::Join":["",["arn:aws:execute-api:", { "Ref" : "AWS::Region" }, ":", { "Ref" : "AWS::AccountId" }, ":", {"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]}, "/*/POST/posts/*/comments"]]}
+								]
+							}]
+						}
+					}
+				},
+
+				"CognitoCreationHelperStack": {
+          "Type" : "AWS::CloudFormation::Stack",
+          "Properties" : {
+            "TemplateURL" : {"Fn::Join": ["/", ["https://s3.amazonaws.com", {"Ref": "CodeBucket"}, {"Ref": "CodeKeyPrefix"}, "cognito-creation-helper.template"]]},
+            "Parameters" : {
+              "CognitoPoolDevID": { "Ref": "CognitoPoolDevID" },
+							"UnauthenticatedBlogUserPolicy" : {"Ref": "UnauthenticatedBlogUserPolicy"},
+							"AuthenticatedBlogUserPolicy" : {"Ref": "AuthenticatedBlogUserPolicy"},
+							"LambdaUserRole": {"Fn::GetAtt": ["LambdaToDynamoDBUserTableRole","Arn"]}
+            },
+            "TimeoutInMinutes" : 7
+          }
+        },
+
+				"KmsCMK" : {
+				  "Type" : "AWS::KMS::Key",
+				  "Properties" : {
+				    "Description" : "master key for encrypting data",
+				    "KeyPolicy" : {
+				      "Version": "2012-10-17",
+				      "Id": "serverlessBlogKeyPolicy",
+				      "Statement": [
+								{
+				          "Sid": "Allow administration of the key by the root user since do not have knowledge of an IAM admin role",
+				          "Effect": "Allow",
+				          "Principal": { "AWS": {"Fn::Join": ["", ["arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"]]}},
+				          "Action": [
+				            "kms:Create*",
+				            "kms:Describe*",
+				            "kms:Enable*",
+				            "kms:List*",
+				            "kms:Put*",
+				            "kms:Update*",
+				            "kms:Revoke*",
+				            "kms:Disable*",
+				            "kms:Get*",
+				            "kms:Delete*",
+				            "kms:ScheduleKeyDeletion",
+				            "kms:CancelKeyDeletion"
+				          ],
+				          "Resource": "*"
+				        },
+				        {
+				          "Sid": "Allow use of the key",
+				          "Effect": "Allow",
+				          "Principal": { "AWS": {"Fn::GetAtt" : ["LambdaToDynamoDBUserTableRole", "Arn"] }},
+				          "Action": [
+				            "kms:Encrypt",
+				            "kms:Decrypt",
+				            "kms:ReEncrypt",
+				            "kms:GenerateDataKey*",
+				            "kms:DescribeKey"
+				          ],
+				          "Resource": "*"
+				        }
+				      ]
+				    }
+				  }
+				},
+
+				"DDBConfigTable": {
+					"Type": "AWS::DynamoDB::Table",
+					"Properties": {
+						"AttributeDefinitions": [{
+							"AttributeName": "environment",
+							"AttributeType": "S"
+						}],
+						"KeySchema": [{
+							"AttributeName": "environment",
+							"KeyType": "HASH"
+						}],
+						"ProvisionedThroughput": {
+							"ReadCapacityUnits": "5",
+							"WriteCapacityUnits": "5"
+						},
+						"TableName": "aws-serverless-config"
+					}
+				},
+
+				"ConfigHelperStack": {
+				 "Type" : "AWS::CloudFormation::Stack",
+				 "Properties" : {
+					 "TemplateURL" : {"Fn::Join": ["/", ["https://s3.amazonaws.com", {"Ref": "CodeBucket"}, {"Ref": "CodeKeyPrefix"}, "config-helper.template"]]},
+					 "Parameters" : {
+						 "ConfigTable": "aws-serverless-config"
+					 },
+					 "TimeoutInMinutes" : 2
+				 }
+			 },
+
+			 "DDBForumTableConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "forum_ddb_table_name",
+					 "Value": { "Ref": "DynamoDBForumTableName" }
+				 }
+			 },
+			 "DDBLatestPostTableConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "latest_post_ddb_table_name",
+					 "Value": { "Ref": "DynamoDBLatestPostTableName" }
+				 }
+			 },
+			 "DDBPostTableConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "post_ddb_table_name",
+					 "Value": { "Ref": "DynamoDBPostTableName" }
+				 }
+			 },
+			 "DDBCommentTableConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "comment_ddb_table_name",
+					 "Value": { "Ref": "DynamoDBCommentTableName" }
+				 }
+			 },
+			 "DDBUserTableConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "user_ddb_table_name",
+					 "Value": { "Ref": "DynamoDBUserTableName" }
+				 }
+			 },
+			 "CognitoPoolIdConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "cognito_identity_pool_id",
+					 "Value": { "Fn::GetAtt" : ["CognitoCreationHelperStack", "Outputs.CognitoPoolId"]  }
+				 }
+			 },
+			 "CognitoPoolDeveloperIdConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "cognito_developer_id",
+					 "Value": { "Ref": "CognitoPoolDevID" }
+				 }
+			 },
+			 "KMSIdConfig": {
+				 "Type": "Custom::ConfigSetting",
+				 "Properties": {
+					 "ServiceToken": { "Fn::GetAtt" : ["ConfigHelperStack", "Outputs.ServiceToken"] },
+					 "Environment": {"Ref": "APIStageName"},
+					 "Key": "encryption_key_id",
+					 "Value": { "Ref": "KmsCMK" }
+				 }
+			 },
+
+			 "PopulateForumsTable": {
+					"Type": "Custom::PopulateData",
+					"Properties": {
+						"ServiceToken": { "Fn::GetAtt" : ["PopulateForumsTableResource", "Arn"] },
+						"ForumTableName": {
+							"Ref": "DynamoDBForumTableName"
+						}
+					}
+				},
+
+				"PopulateForumsTableResource": {
+					"DependsOn": ["LambdaToDynamoDBForumTableRole","DDBForumTable"],
+					"Type": "AWS::Lambda::Function",
+					"Properties": {
+						"Handler": "index.handler",
+						"Runtime": "nodejs4.3",
+						"Role": { "Fn::GetAtt" : ["LambdaToDynamoDBForumTableRole", "Arn"] },
+						"Code": {
+							"ZipFile": {
+								"Fn::Join": ["\n", [
+									"var response = require('cfn-response');",
+									"var AWS = require('aws-sdk');",
+									"var docClient = new AWS.DynamoDB.DocumentClient();",
+									"exports.handler = function (event, context, callback) {",
+									"    console.log('Received event:', JSON.stringify(event, null, 2))",
+									"    if (event.RequestType == 'Delete') {",
+									"        response.send(event, context, response.SUCCESS);",
+									"        return;",
+									"    }",
+									"    var numForums = 5;",
+									"    var complete = 0;",
+									"    var error = false;",
+									"    for (var i = 1; i <= numForums; i++) {",
+									"      var forumName = 'forum' + i;",
+									"      var params = {",
+									"         TableName: event.ResourceProperties.ForumTableName,",
+									"         Item: {",
+									"            \"id\": i.toString(),",
+									"            \"name\": forumName",
+									"         }}",
+									"      docClient.put(params, function (err, data) {",
+									"         if (err) {",
+									"             console.log(\"Error during put: \" + JSON.stringify(err, null, 2));",
+									"             error = true;",
+									"        } else {",
+									"             console.log(\"Forum added\");",
+									"        }",
+									"        complete = complete + 1;",
+									"        if(complete === numForums) {",
+									"           if(!error) {",
+									"            response.send(event, context, response.SUCCESS, {});",
+									"           } else {",
+									"            response.send(event, context, response.FAILED, {});",
+									"           }",
+									"        }",
+									"      });",
+									"   }",
+									"};"
+								]]
+							}
+						},
+						"Timeout": "30"
+					}
+				}
+
+	},
+
+	"Outputs": {
+	"APIEndpoint": {
+			"Value":
+			{
+				"Fn::Join": [
+				"",
+				[
+					"https://",
+					{"Fn::GetAtt" : ["ApiCreationHelperStack", "Outputs.APIID"]},
+					".execute-api.",
+					{"Ref": "AWS::Region"},
+					".amazonaws.com/",
+					{ "Ref": "APIStageName"}
+				]]},
+				"Description": "Prod stage deployment URL"
+		},
+
+		"WebsiteURL" : {
+      "Value" : { "Fn::GetAtt" : [ "WebsiteBucket", "WebsiteURL" ] },
+      "Description" : "URL for serverless blog hosted on S3"
+   },
+
+	 "CognitoIdentityPoolId": {
+				 "Value":
+				 { "Fn::GetAtt" : ["CognitoCreationHelperStack", "Outputs.CognitoPoolId"]  },
+				 "Description": "cognito pool id"
+	 }
+	}
+
+}

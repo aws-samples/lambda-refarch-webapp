@@ -1,0 +1,257 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Parameters": {
+
+		"LambdaToDynamoDBCommentTableRole": {
+			"Type": "String"
+		},
+		"LambdaToDynamoDBPostTableRole": {
+			"Type": "String"
+		},
+		"LambdaToDynamoDBUserTableRole": {
+			"Type": "String"
+		},
+		"LambdaToDynamoDBForumTableRole": {
+			"Type": "String"
+		},
+		"CodeBucket": {
+			"Description": "S3 Bucket containing Lambda deployment packages and sub-stack templates",
+			"Type": "String",
+			"Default": "awslambda-serverless-web-refarch"
+		},
+
+		"CodeKeyPrefix": {
+			"Description": "The key prefix for all deployment packages and sub-stack templates within CodeBucket",
+			"Type": "String",
+			"Default": "code"
+		}
+	},
+
+	"Resources":
+    {
+
+			"SaveCommentFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.comments.handlers.SaveComment",
+					"Role": {
+						"Ref": "LambdaToDynamoDBCommentTableRole"
+					},
+					"Description": "function saves a comment to the DDB comment table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+			"FindCommentFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.comments.handlers.FindComment",
+					"Role": {
+						"Ref": "LambdaToDynamoDBCommentTableRole"
+					},
+					"Description": "function finds a single comment for a post in the DDB comment table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+
+			"FindCommentsFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.comments.handlers.FindComments",
+					"Role": {
+						"Ref": "LambdaToDynamoDBCommentTableRole"
+					},
+					"Description": "function finds all comments for a post in the DDB comment table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+			"SavePostFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.posts.handlers.SavePost",
+					"Role": {
+						"Ref": "LambdaToDynamoDBPostTableRole"
+					},
+					"Description": "function saves a post in the DDB post table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+			"FindPostFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.posts.handlers.FindPost",
+					"Role": {
+						"Ref": "LambdaToDynamoDBPostTableRole"
+					},
+					"Description": "function finds a single post in the DDB post table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+
+			"FindPostsFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.posts.handlers.FindPosts",
+					"Role": {
+						"Ref": "LambdaToDynamoDBPostTableRole"
+					},
+					"Description": "function finds all the posts in the DDB post table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+			"FindForumsFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.forums.handlers.FindForums",
+					"Role": {
+						"Ref": "LambdaToDynamoDBForumTableRole"
+					},
+					"Description": "function finds all the posts in the DDB latest post table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+			"SaveUserFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.users.handlers.SaveUser",
+					"Role": {
+						"Ref": "LambdaToDynamoDBUserTableRole"
+					},
+					"Description": "function saves a user in the DDB user table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			},
+
+			"AuthenticateUserFunction": {
+				"Type": "AWS::Lambda::Function",
+				"Properties": {
+					"Handler": "blog.users.handlers.AuthenticateUser",
+					"Role": {
+						"Ref": "LambdaToDynamoDBUserTableRole"
+					},
+					"Description": "function authenticates a user in the DDB user table",
+					"Code": {
+						"S3Bucket": { "Ref": "CodeBucket" },
+						"S3Key": {
+							"Fn::Join" : [ "", [{"Ref" : "CodeKeyPrefix"} , "/", "serverless-web-refarch.zip"]]
+							}
+					},
+					"Runtime": "java8",
+					"MemorySize" : "512",
+					"Timeout": "60"
+				}
+			}
+
+
+	},
+
+	"Outputs": {
+
+		"AuthenticateUserFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["AuthenticateUserFunction","Arn"] }
+		},
+		"SaveUserFunction": {
+						"Value":
+						{ "Fn::GetAtt": ["SaveUserFunction","Arn"] }
+		},
+		"FindForumsFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["FindForumsFunction","Arn"] }
+			},
+		"SavePostFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["SavePostFunction","Arn"] }
+		},
+		"FindPostsFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["FindPostsFunction","Arn"] }
+			},
+		"FindPostFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["FindPostFunction","Arn"] }
+			},
+		"SaveCommentFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["SaveCommentFunction","Arn"] }
+			},
+		"FindCommentsFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["FindCommentsFunction","Arn"] }
+			},
+		"FindCommentFunction": {
+					"Value":
+					{ "Fn::GetAtt": ["FindCommentFunction","Arn"] }
+			}
+	}
+}

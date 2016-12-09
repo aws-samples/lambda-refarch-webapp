@@ -1,0 +1,16 @@
+<section class="jumbotron">
+      
+  <menu-button></menu-button>
+
+<h1><a class="jumbotron-href" href="/#/">{{title}}</a></h1>
+<p class="lead">
+  <img class="jumbotron-img" ng-src="{{img}}" alt="{{alt}}">
+  <br>
+  {{description}}
+</p>
+
+<div layout="row" layout-align="center" ng-show="loading === true">
+  <div data-loader="ball-fade"></div>
+</div>
+
+</section>
