@@ -122,7 +122,7 @@
 								}
 					},
 
-					"LambdaCognitoExecutionRole": {
+					"LambdaCreateCognitoExecutionRole": {
 						"Type": "AWS::IAM::Role",
 						"Properties": {
 							"AssumeRolePolicyDocument": {
@@ -158,6 +158,48 @@
 						}
 					},
 
+					"LambdaUpdateCognitoExecutionRole": {
+						"Type": "AWS::IAM::Role",
+						"Properties": {
+							"AssumeRolePolicyDocument": {
+								"Version": "2012-10-17",
+								"Statement": [{
+										"Effect": "Allow",
+										"Principal": {"Service": ["lambda.amazonaws.com"]},
+										"Action": ["sts:AssumeRole"]
+								}]
+							},
+							"Path": "/",
+							"Policies": [{
+								"PolicyName": "root",
+								"PolicyDocument": {
+									"Version": "2012-10-17",
+									"Statement": [{
+											"Effect": "Allow",
+											"Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"],
+											"Resource": "arn:aws:logs:*:*:*"
+									},
+									{
+										"Effect": "Allow",
+										"Action": ["cognito-identity:CreateIdentityPool","cognito-identity:SetIdentityPoolRoles","cognito-identity:UpdateIdentityPool"],
+										"Resource": "*"
+									},
+									{
+										"Effect": "Allow",
+										"Action": ["iam:putRolePolicy"],
+										"Resource": {"Ref": "LambdaUserRole"}
+									},
+								  {
+										"Effect": "Allow",
+										"Action": ["iam:passRole"],
+										"Resource": [{ "Fn::GetAtt" : ["CognitoServerlessBlogAuthenticatedRole", "Arn"] },
+										             { "Fn::GetAtt" : ["CognitoServerlessBlogUnauthenticatedRole", "Arn"] }]
+									}]
+								}
+							}]
+						}
+					},
+
 					"CreateCognitoPoolResource": {
 						"Type": "Custom::CreateCognitoPoolResource",
 						"Properties": {
@@ -175,12 +217,12 @@
 					},
 
 					"AddCognitoIdentityPool": {
-						"DependsOn": "LambdaCognitoExecutionRole",
+						"DependsOn": "LambdaCreateCognitoExecutionRole",
 						"Type": "AWS::Lambda::Function",
 						"Properties": {
 							"Handler": "index.handler",
 							"Runtime": "nodejs",
-							"Role": { "Fn::GetAtt" : ["LambdaCognitoExecutionRole", "Arn"] },
+							"Role": { "Fn::GetAtt" : ["LambdaCreateCognitoExecutionRole", "Arn"] },
 							"Code": {
 								"ZipFile": {
 									"Fn::Join": ["\n", [
@@ -253,12 +295,12 @@
 					},
 
 					"UpdateCognitoIdentityPool": {
-						"DependsOn": "LambdaCognitoExecutionRole",
+						"DependsOn": "LambdaUpdateCognitoExecutionRole",
 						"Type": "AWS::Lambda::Function",
 						"Properties": {
 							"Handler": "index.handler",
 							"Runtime": "nodejs",
-							"Role": { "Fn::GetAtt" : ["LambdaCognitoExecutionRole", "Arn"] },
+							"Role": { "Fn::GetAtt" : ["LambdaUpdateCognitoExecutionRole", "Arn"] },
 							"Code": {
 								"ZipFile": {
 									"Fn::Join": ["\n", [
