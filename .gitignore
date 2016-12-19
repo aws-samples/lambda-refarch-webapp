@@ -71,5 +71,5 @@ gradle-app.setting
 node_modules/
 
 .DS_Store
-dist/
-website/dist/
+/dist/
+/website/dist/
