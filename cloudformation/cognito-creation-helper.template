@@ -221,7 +221,7 @@
 						"Type": "AWS::Lambda::Function",
 						"Properties": {
 							"Handler": "index.handler",
-							"Runtime": "nodejs",
+							"Runtime": "nodejs4.3",
 							"Role": { "Fn::GetAtt" : ["LambdaCreateCognitoExecutionRole", "Arn"] },
 							"Code": {
 								"ZipFile": {
@@ -299,7 +299,7 @@
 						"Type": "AWS::Lambda::Function",
 						"Properties": {
 							"Handler": "index.handler",
-							"Runtime": "nodejs",
+							"Runtime": "nodejs4.3",
 							"Role": { "Fn::GetAtt" : ["LambdaUpdateCognitoExecutionRole", "Arn"] },
 							"Code": {
 								"ZipFile": {
