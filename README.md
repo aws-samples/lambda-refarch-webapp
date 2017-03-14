@@ -1,6 +1,6 @@
 # Serverless Reference Architecture:  Web Application
 
-## Note: The Vote Application serverless reference architecture was originally in the lambda-refarch-webapp repository and has since moved to the lambda-refarch-voteapp repository.
+## Note: The Vote Application serverless reference architecture was originally in the lambda-refarch-webapp repository and has since moved to the [lambda-refarch-voteapp repository](https://github.com/awslabs/lambda-refarch-voteapp).
 
 The Serverless Web Application ([diagram](https://s3.amazonaws.com/awslambda-serverless-web-refarch/RefArch_BlogApp_Serverless.png)) demonstrates how to use [AWS Lambda](http://aws.amazon.com/lambda/) in conjunction with [Amazon API Gateway](http://aws.amazon.com/api-gateway/), [Amazon DynamoDB](http://aws.amazon.com/dynamodb/), [Amazon S3](http://aws.amazon.com/s3/), and [Amazon Cognito](http://aws.amazon.com/cognito/) to build a serverless web application.  
 
