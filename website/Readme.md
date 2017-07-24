@@ -84,13 +84,11 @@ This outputs minified scripts that can be uploaded to your S3 static site; **eve
 1. Sign into the AWS management console.
 2. Select S3 from the list of services.
 3. Select the S3 bucket created by the CloudFormation stack for your website.
-4. Open your file explorer, drag and drop all the contents of `website/dist` into the bucket.
-5. A pop-up will appear, select 'Upload' to upload the contents of the `website/dist` directory to the S3 bucket.  
-6. Click the 'Select Details' button and leave the defaults.
-7. Click the 'Set Permissions' button.
-8. Select 'Make everything public'.
-9. Click 'Start Upload'.
-10. Once the upload is complete, your blog is now up and running.  You can find the endpoint for your serverless blog in the CloudFormation stack's output parameter labeled: **WebsiteURL**
+4. Open your file explorer, drag and drop all the contents of `website/dist` into the bucket. 
+5. A popup will appear, review the files to be uploaded and then click 'Next'.
+6. In the 'Manage public permissions' dropdown, select 'Grant public read access to this object(s)`.
+8. Click 'Upload', optionally you can keep clicking 'Next' to view the defaults, but we won't modify those for this example.
+9. Once the upload is complete, your blog is now up and running.  You can find the endpoint for your serverless blog in the CloudFormation stack's output parameter labeled: **WebsiteURL**
 
 ### Running locally
 To run the website locally instead of on S3, perform the following command:
