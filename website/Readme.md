@@ -84,8 +84,8 @@ This outputs minified scripts that can be uploaded to your S3 static site; **eve
 1. Sign into the AWS management console.
 2. Select S3 from the list of services.
 3. Select the S3 bucket created by the CloudFormation stack for your website.
-4. From the 'Actions' menu, select 'Upload'.
-5. Upload the contents of the `website/dist` directory to the S3 bucket.  
+4. Open your file explorer, drag and drop all the contents of `website/dist` into the bucket.
+5. A pop-up will appear, select 'Upload' to upload the contents of the `website/dist` directory to the S3 bucket.  
 6. Click the 'Select Details' button and leave the defaults.
 7. Click the 'Set Permissions' button.
 8. Select 'Make everything public'.
