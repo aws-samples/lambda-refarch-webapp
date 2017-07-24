@@ -10,7 +10,8 @@
 
 		"HostingBucket": {
 			"Description": "S3 Bucket name for where the website should be hosted",
-			"Type": "String"
+			"Type": "String",
+			"Default": "awslambda-serverless-web-refarch-website"
 		},
 
 		"CodeBucket": {
