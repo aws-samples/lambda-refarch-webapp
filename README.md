@@ -72,7 +72,7 @@ The following sections explain all of the resources created by the CloudFormatio
 
 - **LambdaToDynamoDBCommentTableRole** - An IAM role assumed by the `SaveCommentFunction`, `FindCommentsFunction`, and `FindCommentFunction` functions. This role provides logging permissions and access to the `DDBCommentTable` and the `DDBConfigTable` tables.
 
-- **LambdaToDynamoDBForumTableRole** - An IAM role assumed by the _____ function.  This role provides logging permissions and access to the `DDBForumTable` and the `DDBConfigTable` table.
+- **LambdaToDynamoDBForumTableRole** - An IAM role assumed by the `FindForumsFunction` function.  This role provides logging permissions and access to the `DDBForumTable` and the `DDBConfigTable` table.
 
 ### API Gateway resources
 
