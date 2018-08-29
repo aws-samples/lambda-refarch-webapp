@@ -2,7 +2,7 @@
 
 ## Note: The Vote Application serverless reference architecture was originally in the lambda-refarch-webapp repository and has since moved to the lambda-refarch-voteapp repository.
 
-The Serverless Web Application ([diagram](https://s3.amazonaws.com/awslambda-serverless-web-refarch/RefArch_BlogApp_Serverless.png)) demonstrates how to use [AWS Lambda](http://aws.amazon.com/lambda/) in conjunction with [Amazon API Gateway](http://aws.amazon.com/api-gateway/), [Amazon DynamoDB](http://aws.amazon.com/dynamodb/), [Amazon S3](http://aws.amazon.com/s3/), and [Amazon Cognito](http://aws.amazon.com/cognito/) to build a serverless web application.  
+The Serverless Web Application ([diagram](https://s3.amazonaws.com/aws-lambda-serverless-web-refarch/RefArch_BlogApp_Serverless.png)) demonstrates how to use [AWS Lambda](http://aws.amazon.com/lambda/) in conjunction with [Amazon API Gateway](http://aws.amazon.com/api-gateway/), [Amazon DynamoDB](http://aws.amazon.com/dynamodb/), [Amazon S3](http://aws.amazon.com/s3/), and [Amazon Cognito](http://aws.amazon.com/cognito/) to build a serverless web application.  
 
 The site is a simple blog application that allows users to log in and create posts and comments. By leveraging these services, you can build cost-efficient web applications that don't require the overhead of managing servers.
 
@@ -14,11 +14,11 @@ The entire example system can be deployed in us-east-1 using the provided CloudF
 
 Choose **Launch Stack** to launch the template in the us-east-1 region in your account:
 
-[![Launch Serverless Web Application into North Virginia with CloudFormation](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/images/cloudformation-launch-stack-button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=serverless-web-refarch&templateURL=https://s3.amazonaws.com/awslambda-serverless-web-refarch/serverless-web-master.template)
+[![Launch Serverless Web Application into North Virginia with CloudFormation](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/images/cloudformation-launch-stack-button.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=serverless-web-refarch&templateURL=https://s3.amazonaws.com/aws-lambda-serverless-web-refarch/serverless-web-master.template)
 
 After the stack is successfully created, you need to finish the configuration.
 
-- Follow the instructions to minify the website code and push it to S3.  See the [website readme](http://s3.amazonaws.com/awslambda-serverless-web-refarch/website/Readme.md) for step-by-step instructions. Follow the **Updating the API Gateway SDK**, **Updating the Amazon Cognito identity ID and AWS region**, **Building**, and **Production Build** sections.  
+- Follow the instructions to minify the website code and push it to S3.  See the [website readme](http://s3.amazonaws.com/aws-lambda-serverless-web-refarch/website/Readme.md) for step-by-step instructions. Follow the **Updating the API Gateway SDK**, **Updating the Amazon Cognito identity ID and AWS region**, **Building**, and **Production Build** sections.  
 - After you have done this, upload the website to the S3 bucket that you created via the CloudFormation script (that is, the bucket you specified for the `Hosting Bucket` parameter).
 
 ## Testing the example
