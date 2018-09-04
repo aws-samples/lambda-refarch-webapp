@@ -17,7 +17,7 @@
 		"CodeBucket": {
 			"Description": "S3 Bucket containing Lambda deployment packages and sub-stack templates",
 			"Type": "String",
-			"Default": "awslambda-serverless-web-refarch"
+			"Default": "aws-lambda-serverless-web-refarch"
 		},
 
 		"CodeKeyPrefix": {
