@@ -18,7 +18,7 @@ Choose **Launch Stack** to launch the template in the us-east-1 region in your a
 
 After the stack is successfully created, you need to finish the configuration.
 
-- Follow the instructions to minify the website code and push it to S3.  See the [website readme](http://s3.amazonaws.com/aws-lambda-serverless-web-refarch/website/Readme.md) for step-by-step instructions. Follow the **Updating the API Gateway SDK**, **Updating the Amazon Cognito identity ID and AWS region**, **Building**, and **Production Build** sections.  
+- Follow the instructions to minify the website code and push it to S3.  See the [website readme](./website/Readme.md) for step-by-step instructions. Follow the **Updating the API Gateway SDK**, **Updating the Amazon Cognito identity ID and AWS region**, **Building**, and **Production Build** sections.  
 - After you have done this, upload the website to the S3 bucket that you created via the CloudFormation script (that is, the bucket you specified for the `Hosting Bucket` parameter).
 
 ## Testing the example
