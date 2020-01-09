@@ -698,7 +698,7 @@
 					"Type": "AWS::Lambda::Function",
 					"Properties": {
 						"Handler": "index.handler",
-						"Runtime": "nodejs4.3",
+						"Runtime": "nodejs10.x",
 						"Role": { "Fn::GetAtt" : ["LambdaToDynamoDBForumTableRole", "Arn"] },
 						"Code": {
 							"ZipFile": {
