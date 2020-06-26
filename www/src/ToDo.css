@@ -1,0 +1,17 @@
+.ToDo {
+  text-align: left;
+  font-size: 14px;
+  color: #232F3E;
+}
+
+.toDoButton {
+  margin-right: 2px;
+}
+
+.completed {
+  text-decoration: line-through;
+}
+
+.form-group {
+  margin-bottom: 0 !important;
+}

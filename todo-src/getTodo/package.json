@@ -1,0 +1,13 @@
+{
+  "name": "GetTodo-item",
+  "version": "1.0.0",
+  "description": "Add a new ToDo item to the DynamoDB Table",
+  "main": "src/app.js",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.689.0",
+    "aws-embedded-metrics": "^1.1.1",
+    "aws-xray-sdk-core": "^3.0.1"
+  }
+}
