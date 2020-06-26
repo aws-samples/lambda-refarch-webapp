@@ -1,0 +1,28 @@
+{
+    "GetTodoFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "TodoTable"
+    },
+    "GetAllTodoFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "TodoTable"
+    },
+    "CompleteTodoFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "TodoTable"
+    },
+    "AddTodoFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "TodoTable"
+    },
+    "UpdateTodoFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "TodoTable"
+    },
+    "DeleteTodoFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "TodoTable"
+    }
+
+    
+}

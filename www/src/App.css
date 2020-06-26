@@ -1,0 +1,18 @@
+.App {
+  text-align: left;
+  margin-top: 20px;
+  color: #FFF;
+}
+
+.logo img {
+  height: 40px;
+}
+
+.jumbotron {
+  background-color: #37475A;
+}
+
+.btn-primary {
+  background-color: #FF9900;
+  color: #FFFFFF;
+}
