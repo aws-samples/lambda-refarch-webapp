@@ -24,6 +24,11 @@ const response = (statusCode, body, additionalHeaders) => ({
     headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', ...additionalHeaders},
 })
 
+function isValidRequest(context, event) {
+    return  (event !== null) &&
+            (event.request.userAttributes.sub)
+}
+
 function getRecords() {
     let params = {
         TableName: TABLE_NAME,
@@ -39,6 +44,11 @@ exports.getAllToDoItem =
             metrics.setNamespace('TodoApp')
             metrics.putDimensions({Service: "getAllTodo"})
             metrics.setProperty("RequestId", context.requestId)
+
+            if (!isValidRequest(context, event)) {
+                metrics.putMetric("Error", 1, Unit.Count)
+                return response(400, { message: "Error: Invalid request" })
+            }
 
             try {
                 let data = await getRecords().promise()

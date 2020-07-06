@@ -28,7 +28,8 @@ function isValidRequest(context, event) {
     return (event !== null) &&
         (event.pathParameters !== null) &&
         (event.pathParameters.id !== null) &&
-        (/^[\w-]+$/.test(event.pathParameters.id))
+        (/^[\w-]+$/.test(event.pathParameters.id)) &&
+        (event.request.userAttributes.sub)
 }
 
 function deleteRecordById(recordId) {

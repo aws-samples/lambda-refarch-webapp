@@ -26,7 +26,7 @@ const response = (statusCode, body, additionalHeaders) => ({
 })
 
 function isValidRequest(context, event) {
-    return (event.body !== null)
+    return (event.body !== null) && (event.request.userAttributes.sub)
 }
 
 function addRecord(event) {
