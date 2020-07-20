@@ -39,6 +39,10 @@ Parameters:
   Repository:
     Type: String
     Description: GitHub Repository URL
+  Branch:
+    Type: String
+    Description: GitHub Branch
+    Default: master
   OauthToken:
     Type: String
     Description: GitHub Repository URL
@@ -349,7 +353,7 @@ Resources:
   AmplifyBranch:
     Type: AWS::Amplify::Branch
     Properties:
-      BranchName: amplify-console
+      BranchName: !Ref Branch
       AppId: !GetAtt AmplifyApp.AppId
       Description: Amplify Console Branch
       EnableAutoBuild: true
@@ -357,7 +361,7 @@ Resources:
         - Key: Name
           Value: todo-amplify-console
         - Key: Branch
-          Value: amplify-console
+          Value: !Ref Branch
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
