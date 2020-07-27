@@ -180,7 +180,7 @@ creates the following resources:
 
 * **TodoUserPoolTokenClient** - A Cognito UserPool Client used by the web application
 
-* **TodoDomain** - The Cogito UserPool domain name
+* **TodoDomain** - The Cognito UserPool domain name
 
 * **TodoTable** - The DynamoDB table used to hold all the ToDo items for all users
 
