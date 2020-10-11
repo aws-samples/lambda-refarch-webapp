@@ -24,12 +24,31 @@ const response = (statusCode, body, additionalHeaders) => ({
     headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', ...additionalHeaders},
 })
 
-function getRecords() {
+// Get cognito username from claims
+function getCognitoUsername(event){
+    let authHeader = event.requestContext.authorizer;
+    if (authHeader !== null)
+    {
+        return authHeader.claims["cognito:username"];
+    }
+    return null;
+
+}
+
+// Retrieve all the items by cognito-username
+function getRecords(username) {
     let params = {
         TableName: TABLE_NAME,
+        KeyConditionExpression: "#username = :username",
+        ExpressionAttributeNames:{
+            "#username": "cognito-username"
+        },
+        ExpressionAttributeValues: {
+            ":username": username
+        }
     }
 
-    return docClient.scan(params)
+    return docClient.query(params)
 }
 
 // Lambda Handler
@@ -41,12 +60,14 @@ exports.getAllToDoItem =
             metrics.setProperty("RequestId", context.requestId)
 
             try {
-                let data = await getRecords().promise()
+                let username = getCognitoUsername(event);
+                let data = await getRecords(username).promise()
                 metrics.putMetric("Success", 1, Unit.Count)
                 return response(200, data)
 
             } catch (err) {
                 metrics.putMetric("Error", 1, Unit.Count)
+                console.error(err.message);
                 return response(400, {message: err.message})
             }
         }

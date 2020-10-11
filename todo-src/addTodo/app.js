@@ -29,7 +29,22 @@ function isValidRequest(context, event) {
     return (event.body !== null)
 }
 
+function getCognitoUsername(event){
+    let authHeader = event.requestContext.authorizer;
+    if (authHeader !== null)
+    {
+        return authHeader.claims["cognito:username"];
+    }
+    return null;
+
+}
+
 function addRecord(event) {
+
+    let usernameField = {
+        "cognito-username": getCognitoUsername(event)
+    }
+
     // auto generated date fields
     let d = new Date()
     let dISO = d.toISOString()
@@ -40,8 +55,10 @@ function addRecord(event) {
     }
 
     //merge the json objects
-    let item_body = { ...auto_fields, ...JSON.parse(event.body) }
+    let item_body = {...usernameField, ...auto_fields, ...JSON.parse(event.body) }
 
+    console.log(item_body);
+    
     //final params to DynamoDB
     const params = {
         TableName: TABLE_NAME,

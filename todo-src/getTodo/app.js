@@ -32,10 +32,21 @@ function isValidRequest(context, event) {
         (/^[\w-]+$/.test(event.pathParameters.id))
 }
 
-function getRecordById(recordId) {
+function getCognitoUsername(event){
+    let authHeader = event.requestContext.authorizer;
+    if (authHeader !== null)
+    {
+        return authHeader.claims["cognito:username"];
+    }
+    return null;
+
+}
+
+function getRecordById(username, recordId) {
     let params = {
         TableName: TABLE_NAME,
         Key: {
+            "cognito-username": username,
             "id": recordId
         }
     }
@@ -56,7 +67,8 @@ exports.getToDoItem =
             }
 
             try {
-                let data = await getRecordById(event.pathParameters.id).promise()
+                let username = getCognitoUsername(event);
+                let data = await getRecordById(username, event.pathParameters.id).promise()
                 metrics.putMetric("Success", 1, Unit.Count)
                 return response(200, data)
 

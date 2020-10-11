@@ -39,11 +39,22 @@ function isValidRequest(context, event) {
     return isIdValid && isBodyValid;
 }
 
-function updateRecord(recordId, eventBody) {
+function getCognitoUsername(event){
+    let authHeader = event.requestContext.authorizer;
+    if (authHeader !== null)
+    {
+        return authHeader.claims["cognito:username"];
+    }
+    return null;
+}
+
+
+function updateRecord(username, recordId, eventBody) {
     let d = new Date()
     const params = {
         TableName: TABLE_NAME,
         Key: {
+            "cognito-username": username,
             "id": recordId
         },
         UpdateExpression: "set completed = :c, lastupdate_date = :lud, #i = :i",
@@ -77,6 +88,7 @@ exports.updateToDoItem =
             }
 
             try {
+                let username = getCognitoUsername(event);
                 let data = await updateRecord(event.pathParameters.id, event.body).promise()
                 metrics.putMetric("Success", 1, Unit.Count)
                 return response(200, data)
