@@ -104,18 +104,18 @@
         "resourceId": "d14k8r",
         "authorizer": {
             "claims": {
-                "at_hash": "jFB4pZ3DsY_RCKlCVRQGRA",
-                "sub": "f1f50796-e81b-4793-9d55-6230647a8735",
+                "at_hash": "jFB4pZ3DsY_RCKEXAMPLE",
+                "sub": "f1f50796-e81b-4793-9d55-6230647a0000",
                 "aud": "mj9hu7v4nrmtsu12cispl3rt2",
                 "email_verified": "true",
-                "event_id": "ddba78de-02b9-4a30-b9ba-4d0ab6b08c60",
+                "event_id": "ddba78de-02b9-4a30-b9ba-4d0ab6b08c00",
                 "token_use": "id",
                 "auth_time": "1602355121",
-                "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_i0DHLhpAB",
-                "cognito:username": "f1f50796-e81b-4793-9d55-6230647a8735",
+                "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_i0DHLhpXX",
+                "cognito:username": "f1f50796-e81b-4793-9d55-6230647a0000",
                 "exp": "Sat Oct 10 19:38:41 UTC 2020",
                 "iat": "Sat Oct 10 18:38:41 UTC 2020",
-                "email": "leoabrahao@gmail.com"
+                "email": "johndoe@example.com"
             }
         },
         "resourcePath": "/item/{id}",
