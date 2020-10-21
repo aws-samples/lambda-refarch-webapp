@@ -31,11 +31,26 @@ function isValidRequest(context, event) {
         (/^[\w-]+$/.test(event.pathParameters.id))
 }
 
-function deleteRecordById(recordId) {
+function getCognitoUsername(event){
+    let authHeader = event.requestContext.authorizer;
+    if (authHeader !== null)
+    {
+        return authHeader.claims["cognito:username"];
+    }
+    return null;
+
+}
+
+
+function deleteRecordById(username, recordId) {
     let params = {
         TableName: TABLE_NAME,
-        Key: {
-            "id": recordId
+        KeyConditionExpression: "#username = :username",
+        ExpressionAttributeNames:{
+            "#username": "cognito-username"
+        },
+        ExpressionAttributeValues: {
+            ":username": username
         }
     }
 
@@ -56,7 +71,8 @@ exports.deleteToDoItem =
             }
 
             try {
-                let data = await deleteRecordById(event.pathParameters.id).promise()
+                let username = getCognitoUsername(event);
+                let data = await deleteRecordById(username, event.pathParameters.id).promise()
                 metrics.putMetric("Success", 1, Unit.Count)
                 return response(200, data)
             } catch (err) {

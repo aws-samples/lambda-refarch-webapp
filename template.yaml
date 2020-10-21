@@ -89,12 +89,22 @@ Resources:
       UserPoolId: !Ref TodoUserPool
 
   TodoTable:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-          Name: id
-          Type: String
       TableName: !Join ['-', [todo-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: cognito-username
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+      AttributeDefinitions:
+          - AttributeName: cognito-username
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+      ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5                  
       SSESpecification:
         SSEEnabled: true
 

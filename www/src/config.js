@@ -4,7 +4,7 @@
 const config = {
   "aws_user_pools_web_client_id": "None",     // CognitoClientID
   "api_base_url": "None",                                     // TodoFunctionApi
-  "coginto_hosted_domain": "None",                   // CognitoDomainName
+  "cognito_hosted_domain": "None",                   // CognitoDomainName
   "redirect_url": "None"                                      // AmplifyURL
 };
 

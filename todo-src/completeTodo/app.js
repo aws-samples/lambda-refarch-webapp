@@ -31,15 +31,27 @@ function isValidRequest(context, event) {
         (/^[\w-]+$/.test(event.pathParameters.id))
 }
 
-function updateRecord(recordId) {
+function getCognitoUsername(event){
+    let authHeader = event.requestContext.authorizer;
+    if (authHeader !== null)
+    {
+        return authHeader.claims["cognito:username"];
+    }
+    return null;
+
+}
+
+function updateRecord(username, recordId) {
     let params = {
         TableName: TABLE_NAME,
-        Key: { "id": recordId },
+        Key: { 
+            "cognito-username": username,
+            "id": recordId
+        },
         UpdateExpression: "set #field = :value",
         ExpressionAttributeNames: { '#field': 'completed' },
         ExpressionAttributeValues: { ':value': true }
     }
-
     return docClient.update(params)
 }
 
@@ -57,7 +69,8 @@ exports.completeToDoItem =
             }
 
             try {
-                let data = await updateRecord(event.pathParameters.id).promise()
+                let username = getCognitoUsername(event);
+                let data = await updateRecord(username, event.pathParameters.id).promise()
                 metrics.putMetric("Success", 1, Unit.Count)
                 return response(200, data)
             } catch (err) {
