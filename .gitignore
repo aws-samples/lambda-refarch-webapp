@@ -134,7 +134,6 @@ samconfig.toml
 # node_modules #
 ################
 **/node_modules
-package-lock.json
 packaged.yaml
 
 # OS generated files #
