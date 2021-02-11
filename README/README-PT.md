@@ -201,7 +201,7 @@ O [template](../template.yaml) cria os recursos abaixo:
 * **ApiAccessLogGroup** - loudWatch Logs Log Group usado pelo API Gateway para o log de mensagens
 
 * **AmplifyApp** - Amplify Console application para gerenciar as atualizações do frontend executada pelos gatilhos do GitHub.
-* 
+
 * **AmplifyBranch** - Configuração da integração da branch no GitHub com o Amplify
 
 * **AmplifyRole** - IAM role que permite o Amplify executar as ações necessárias para atualização de conteúdo
