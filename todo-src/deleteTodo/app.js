@@ -45,12 +45,9 @@ function getCognitoUsername(event){
 function deleteRecordById(username, recordId) {
     let params = {
         TableName: TABLE_NAME,
-        KeyConditionExpression: "#username = :username",
-        ExpressionAttributeNames:{
-            "#username": "cognito-username"
-        },
-        ExpressionAttributeValues: {
-            ":username": username
+        Key: {
+            "cognito-username": username,
+            "id": recordId
         }
     }
 
