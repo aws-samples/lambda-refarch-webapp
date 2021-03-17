@@ -73,24 +73,22 @@ function addRecord(event) {
 }
 
 // Lambda Handler
-exports.addToDoItem = metricScope(
-  (metrics) => async (event, context, callback) => {
-    metrics.setNamespace("TodoApp");
-    metrics.putDimensions({ Service: "addTodo" });
-    metrics.setProperty("RequestId", context.requestId);
+exports.addToDoItem = metricScope((metrics) => async (event, context) => {
+  metrics.setNamespace("TodoApp");
+  metrics.putDimensions({ Service: "addTodo" });
+  metrics.setProperty("RequestId", context.requestId);
 
-    if (!isValidRequest(context, event)) {
-      metrics.putMetric("Error", 1, Unit.Count);
-      return response(400, { message: "Error: Invalid request" });
-    }
-
-    try {
-      let data = await addRecord(event).promise();
-      metrics.putMetric("Success", 1, Unit.Count);
-      return response(200, data);
-    } catch (err) {
-      metrics.putMetric("Error", 1, Unit.Count);
-      return response(400, { message: err.message });
-    }
+  if (!isValidRequest(context, event)) {
+    metrics.putMetric("Error", 1, Unit.Count);
+    return response(400, { message: "Error: Invalid request" });
   }
-);
+
+  try {
+    let data = await addRecord(event).promise();
+    metrics.putMetric("Success", 1, Unit.Count);
+    return response(200, data);
+  } catch (err) {
+    metrics.putMetric("Error", 1, Unit.Count);
+    return response(400, { message: err.message });
+  }
+});
