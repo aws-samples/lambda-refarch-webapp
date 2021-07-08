@@ -18,6 +18,8 @@ on:
     # The branches below must be a subset of the branches above
     branches: [ master ]
   schedule:
+    # Reference: https://support.acquia.com/hc/en-us/articles/360004224494-Cron-time-string-format
+    # Every Saturday (6 - 0 and 7 represent Sunday) at 01:37 aka 1:37 am
     - cron: '37 1 * * 6'
 
 jobs:
