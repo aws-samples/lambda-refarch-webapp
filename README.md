@@ -56,6 +56,8 @@ export STACK_NAME=<a unique name for your CloudFormation stack>
 ./deploy.sh
 ```
 
+**Note: there is a known issue when deploying to AWS. See https://github.com/aws-samples/lambda-refarch-webapp/issues/50 for details**
+
 The script will use the SAM CLI to build your backend functions, and then the guided deployment feature of the SAM CLI for the initial backend deployment. You will be prompted for a set of parameters, and can accept the defaults for all parameters with the exception of the GitHub Repository URL and the GitHub OAuth token.
 
 ### Building the Application Step by Step
