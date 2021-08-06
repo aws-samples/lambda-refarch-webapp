@@ -36,7 +36,7 @@ To accomplish this, we are using Cognito User Pools, which allows users to regis
 
 Fork this repository to your own GitHub account, as you will need to create a Personal Access Token in Github for the Amplify console, as well as provide your GitHub repository URL in the deployment.
 
-You can use the provided [AWS SAM template](./template.yml) to launch a stack that shown here on this Serverless reference architecture. Details about the resources created by this template are provided in the *SAM Template Resources* section of this document.
+You can use the provided [AWS SAM template](./template.yaml) to launch a stack that shown here on this Serverless reference architecture. Details about the resources created by this template are provided in the *SAM Template Resources* section of this document.
 
 ## Generating your Github Access Token
 
