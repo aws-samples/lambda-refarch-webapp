@@ -2,10 +2,10 @@
 // aws cloudformation describe-stacks --stack-name <YOUR STACK NAME> --query "Stacks[0].Outputs[]"
 
 const config = {
-  "aws_user_pools_web_client_id": "2jpqog2ak1t3qt6fmsrmrnrdbo",     // CognitoClientID
-  "api_base_url": "https://1d4ldfwec0.execute-api.ap-southeast-1.amazonaws.com/dev",                                    // TodoFunctionApi
-  "cognito_hosted_domain": "mytodoappdemo-todo-demo.auth.ap-southeast-1.amazoncognito.com",                   // CognitoDomainName
-  "redirect_url": "https://master.d1ooex4fqfbp8g.amplifyapp.com"                                    // AmplifyURL
+  "aws_user_pools_web_client_id": "31i4f4k9uqujnsl6o4aumcvlgu",     // CognitoClientID
+  "api_base_url": "https://l1unaseofh.execute-api.us-west-2.amazonaws.com/prod",                         // TodoFunctionApi
+  "cognito_hosted_domain": "mytodoappdemo-todo-demo.auth.us-west-2.amazoncognito.com",                   // CognitoDomainName
+  "redirect_url": "https://master.d1gbbx9nzhqa8j.amplifyapp.com"                                    // AmplifyURL
 };
 
 export default config;
