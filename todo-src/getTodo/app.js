@@ -62,7 +62,7 @@ exports.getToDoItem = metricScope((metrics) => async (event, context) => {
   metrics.setNamespace("TodoApp");
   metrics.putDimensions({ Service: "getTodo" });
   metrics.setProperty("RequestId", context.requestId);
-  if (!isValidRequest(context, event)) {
+  if (!isValidRequest(event)) {
     metrics.putMetric("Error", 1, Unit.Count);
     return response(400, { message: "Error: Invalid request" });
   }
