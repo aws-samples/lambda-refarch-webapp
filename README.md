@@ -1,9 +1,10 @@
 # Serverless Reference Architecture: Web Application
 
-README Languages: 
-[PT](README/README-PT.md) 
+README Languages:
+[PT](README/README-PT.md)
 
 ## Introduction
+
 The Web Application reference architecture is a general-purpose, event-driven, web application back-end that uses [AWS Lambda](https://aws.amazon.com/lambda), [Amazon API Gateway](https://aws.amazon.com/apigateway) for its business logic. It also uses [Amazon DynamoDB](https://aws.amazon.com/dynamodb) as its database and [Amazon Cognito](https://aws.amazon.com/cognito) for user management. All static content is hosted using [AWS Amplify Console](https://aws.amazon.com/amplify/console).
 
 This application implements a simple To Do app, in which a registered user can create, update, view the existing items, and eventually, delete them.
@@ -36,7 +37,30 @@ To accomplish this, we are using Cognito User Pools, which allows users to regis
 
 Fork this repository to your own GitHub account, as you will need to create a Personal Access Token in Github for the Amplify console, as well as provide your GitHub repository URL in the deployment.
 
-You can use the provided [AWS SAM template](./template.yml) to launch a stack that shown here on this Serverless reference architecture. Details about the resources created by this template are provided in the *SAM Template Resources* section of this document.
+You can use the provided [AWS SAM template](./template.yml) to launch a stack that shown here on this Serverless reference architecture. Details about the resources created by this template are provided in the _SAM Template Resources_ section of this document.
+
+### Prerequisites
+
+1. Install Docker
+
+- https://docs.docker.com/desktop/install/mac-install/
+- Note: Choose dockerd (moby) engine. See https://github.com/aws/aws-sam-cli/issues/3595
+
+2. Install node
+
+- https://nodejs.org/en/download/
+
+3. Install npm
+
+- https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+4. Install AWS CLI
+
+- https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+5. Install AWS SAM CLI
+
+- https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html
 
 ## Generating your Github Access Token
 
@@ -72,7 +96,7 @@ sam build --use-container
 
 #### Package the backend
 
-Next, run *sam package*.  This command takes your Lambda handler source code and any third-party dependencies, zips everything, and uploads the zip file to your Amazon S3 bucket. That bucket and file location are then noted in the packaged.yaml file. You use the generated `packaged.yaml` file to deploy the application in the next step.
+Next, run _sam package_. This command takes your Lambda handler source code and any third-party dependencies, zips everything, and uploads the zip file to your Amazon S3 bucket. That bucket and file location are then noted in the packaged.yaml file. You use the generated `packaged.yaml` file to deploy the application in the next step.
 
 ```bash
 sam package \
@@ -84,9 +108,9 @@ sam package \
 
 This command deploys your application to the AWS Cloud. It's important that this command explicitly includes both of the following:
 
-* The AWS Region to deploy to. This Region must match the Region of the Amazon S3 source bucket.
+- The AWS Region to deploy to. This Region must match the Region of the Amazon S3 source bucket.
 
-* The CAPABILITY_IAM parameter, because creating new Lambda functions involves creating new IAM roles.
+- The CAPABILITY_IAM parameter, because creating new Lambda functions involves creating new IAM roles.
 
 ```bash
 sam deploy \
@@ -180,37 +204,37 @@ done
 [The provided template](./template.yaml)
 creates the following resources:
 
-* **TodoUserPool** - A Cognito UserPool that holds all the application users
+- **TodoUserPool** - A Cognito UserPool that holds all the application users
 
-* **TodoUserPoolTokenClient** - A Cognito UserPool Client used by the web application
+- **TodoUserPoolTokenClient** - A Cognito UserPool Client used by the web application
 
-* **TodoDomain** - The Cognito UserPool domain name
+- **TodoDomain** - The Cognito UserPool domain name
 
-* **TodoTable** - The DynamoDB table used to hold all the ToDo items for all users
+- **TodoTable** - The DynamoDB table used to hold all the ToDo items for all users
 
-* **TodoApi** - The REST API that is used to expose the ToDo application functionality
+- **TodoApi** - The REST API that is used to expose the ToDo application functionality
 
-* **GetTodoFunction** - The Lambda function used to retrieve a single ToDo item
+- **GetTodoFunction** - The Lambda function used to retrieve a single ToDo item
 
-* **GetAllTodoFunction** - The Lambda function used to retrieve all the ToDo items
+- **GetAllTodoFunction** - The Lambda function used to retrieve all the ToDo items
 
-* **CompleteTodoFunction** - The Lambda function used to set the state of an item to complete
+- **CompleteTodoFunction** - The Lambda function used to set the state of an item to complete
 
-* **AddTodoFunction** - The Lambda function used to create a new ToDo item
+- **AddTodoFunction** - The Lambda function used to create a new ToDo item
 
-* **UpdateTodoFunction** - The Lambda function used to update the content of a ToDo item
+- **UpdateTodoFunction** - The Lambda function used to update the content of a ToDo item
 
-* **DeleteTodoFunction** - The Lambda function used to delete a ToDo item
+- **DeleteTodoFunction** - The Lambda function used to delete a ToDo item
 
-* **ApiGatewayPushToCloudWatchRole** - An IAM role that allows API Gateway to send log events to CloudWatch Logs
+- **ApiGatewayPushToCloudWatchRole** - An IAM role that allows API Gateway to send log events to CloudWatch Logs
 
-* **ApiAccessLogGroup** - The CloudWatch Logs Log Group used by API Gateway for its log messages
+- **ApiAccessLogGroup** - The CloudWatch Logs Log Group used by API Gateway for its log messages
 
-* **AmplifyApp** - Amplify Console application that will manage deployment of frontend updates based on pushes to GitHub
+- **AmplifyApp** - Amplify Console application that will manage deployment of frontend updates based on pushes to GitHub
 
-* **AmplifyBranch** - Connecting a GitHub branch to the Amplify Console application
+- **AmplifyBranch** - Connecting a GitHub branch to the Amplify Console application
 
-* **AmplifyRole** - An IAM role that allows the Amplify Console to perform build and deployment actions
+- **AmplifyRole** - An IAM role that allows the Amplify Console to perform build and deployment actions
 
 ### Notes
 

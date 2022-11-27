@@ -149,3 +149,5 @@ Thumbs.db
 # Front end config and production build
 www/build
 .idea/
+
+www/yarn.lock
