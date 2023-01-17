@@ -1,16 +1,10 @@
-# Serverless Reference Architecture: Web Application
-
-README Languages: 
-[PT](README/README-PT.md) 
+# Gamevision Web Application
 
 ## Introduction
 The Web Application reference architecture is a general-purpose, event-driven, web application back-end that uses [AWS Lambda](https://aws.amazon.com/lambda), [Amazon API Gateway](https://aws.amazon.com/apigateway) for its business logic. It also uses [Amazon DynamoDB](https://aws.amazon.com/dynamodb) as its database and [Amazon Cognito](https://aws.amazon.com/cognito) for user management. All static content is hosted using [AWS Amplify Console](https://aws.amazon.com/amplify/console).
 
-This application implements a simple To Do app, in which a registered user can create, update, view the existing items, and eventually, delete them.
+This application creates user devices, in which a registered user can create, update, view the existing items, and eventually, delete them.
 
-## Architectural Diagram
-
-![Reference Architecture - Web Application](img/serverless-refarch-webapp.png)
 
 ## Application Components
 
@@ -28,7 +22,7 @@ The backend application is where the actual business logic is implemented. The c
 
 ### User Registration and Authentication
 
-As the ToDo application contains personal information (the user's ToDo items), access is restricted only to registered and authenticated users. Each user can access only their own items.
+As the Gamevision application contains personal information (the user's Device items), access is restricted only to registered and authenticated users. Each user can access only their own items.
 
 To accomplish this, we are using Cognito User Pools, which allows users to register to the application, authenticate and so on. Only after a user is authenticated, the client will receive a JWT token which it should then use when making the REST API calls.
 
@@ -108,16 +102,16 @@ docker run -p 8000:8000 amazon/dynamodb-local
 Create a table in local Dynamodb environment
 
 ```bash
-aws dynamodb create-table --table-name TodoTable --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
+aws dynamodb create-table --table-name DeviceTable --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 ```
 
 Run the sam local module to test the application locally
 
 ```bash
-sam local start-api --env-vars todo-src/test/environment/mac.json
+sam local start-api --env-vars device-src/test/environment/mac.json
 ```
 
-Sample file of mac os is `todo-src/test/environment/mac.json`
+Sample file of mac os is `device-src/test/environment/mac.json`
 
 #### Updating the Front-End Application
 
@@ -180,27 +174,27 @@ done
 [The provided template](./template.yaml)
 creates the following resources:
 
-* **TodoUserPool** - A Cognito UserPool that holds all the application users
+* **GamevisionUserPool** - A Cognito UserPool that holds all the application users
 
-* **TodoUserPoolTokenClient** - A Cognito UserPool Client used by the web application
+* **GamevisionUserPoolTokenClient** - A Cognito UserPool Client used by the web application
 
-* **TodoDomain** - The Cognito UserPool domain name
+* **GamevisionDomain** - The Cognito UserPool domain name
 
-* **TodoTable** - The DynamoDB table used to hold all the ToDo items for all users
+* **DeviceTable** - The DynamoDB table used to hold all the Device items for all users
 
-* **TodoApi** - The REST API that is used to expose the ToDo application functionality
+* **DeviceApi** - The REST API that is used to expose the Device application functionality
 
-* **GetTodoFunction** - The Lambda function used to retrieve a single ToDo item
+* **GetDeviceFunction** - The Lambda function used to retrieve a single Device item
 
-* **GetAllTodoFunction** - The Lambda function used to retrieve all the ToDo items
+* **GetAllDeviceFunction** - The Lambda function used to retrieve all the Device items
 
-* **CompleteTodoFunction** - The Lambda function used to set the state of an item to complete
+* **CompleteDeviceFunction** - The Lambda function used to set the state of an item to complete
 
-* **AddTodoFunction** - The Lambda function used to create a new ToDo item
+* **AddDeviceFunction** - The Lambda function used to create a new Device item
 
-* **UpdateTodoFunction** - The Lambda function used to update the content of a ToDo item
+* **UpdateDeviceFunction** - The Lambda function used to update the content of a Device item
 
-* **DeleteTodoFunction** - The Lambda function used to delete a ToDo item
+* **DeleteDeviceFunction** - The Lambda function used to delete a Device item
 
 * **ApiGatewayPushToCloudWatchRole** - An IAM role that allows API Gateway to send log events to CloudWatch Logs
 
