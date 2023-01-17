@@ -1,0 +1,28 @@
+{
+    "GetDeviceFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "DeviceTable"
+    },
+    "GetAllDeviceFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "DeviceTable"
+    },
+    "CompleteDeviceFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "DeviceTable"
+    },
+    "AddDeviceFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "DeviceTable"
+    },
+    "UpdateDeviceFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "DeviceTable"
+    },
+    "DeleteDeviceFunction": {
+        "ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000",
+        "TABLE_NAME": "DeviceTable"
+    }
+
+    
+}

@@ -1,6 +1,6 @@
 # Arquitetura de Referência Serverless: Aplicação Web
 
-A arquitetura de referência para aplicação web é de proposta geral, orientada a eventos, a camada de API's utiliza [Amazon API Gateway](https://aws.amazon.com/apigateway) e usa [AWS Lambda](https://aws.amazon.com/lambda), para a lógica de negócio. Utiliza também [Amazon DynamoDB](https://aws.amazon.com/dynamodb) como banco de dados e [Amazon Cognito](https://aws.amazon.com/cognito) para gestão de usuários. Todo o conteúdo estático é provido pelo [AWS Amplify Console](https://aws.amazon.com/amplify/console).
+A arquitetura de referência para aplicação web é de proposta geral, orientada a eventos, a camada de API's utiliza [Amazon API Gateway](https://aws.amazon.com/apigateway) e usa [AWS Lambda](https://aws.amazon.com/lambda), para a lógica de negócio. Utiliza também [Amazon DynamoDB](https://aws.amazon.com/dynamodb) como banco de dados e [Amazon Cognito](https://aws.amazon.com/cognito) para gestão de usuários. Device o conteúdo estático é provido pelo [AWS Amplify Console](https://aws.amazon.com/amplify/console).
 
 Essa aplicação implementa um aplicativo simples de To Do List, no qual um usuário registrado pode criar, atualizar, visualizar e eventualmente apagar os itens existentes.
 
@@ -14,13 +14,13 @@ A aplicação web foi constrúida com 3 componentes diferentes.
 
 ### Front End 
 
-A aplicação de The front-end é composta apenas por conteúdo estático (HTML, CSS, JavaScript e imagens) que são gerados pelo `create-react-app`. Todos esses objetos são armazenados no AWS Amplify Console.
+A aplicação de The front-end é composta apenas por conteúdo estático (HTML, CSS, JavaScript e imagens) que são gerados pelo `create-react-app`. Devices esses objetos são armazenados no AWS Amplify Console.
 
 Quando o usuário conecta ao website, os recursos necessários são carregados para o navegador e executados a partir dele. Quando a aplicação precisa comunicar com o backend, o frontend cria uma requisição REST para o backend.
 
 ### Back End (Lógica de Negócio)
 
-O backend da aplicação é onde a lógica de negócio está implementada. O código é implementado usando funções Lambda que são acessadas através do API Gateway - REST API. No nosso caso, temos diferentes funções, cada uma lidando com diferentes aspectos da aplicação: lista de itens a fazer, detalhes sobre um item , atualizar um item, criar um item, marcar um item como completo e apagar um item existente. A aplicação salva todos os itens em uma tabela do DynamoDB.
+O backend da aplicação é onde a lógica de negócio está implementada. O código é implementado usando funções Lambda que são acessadas através do API Gateway - REST API. No nosso caso, temos diferentes funções, cada uma lidando com diferentes aspectos da aplicação: lista de itens a fazer, detalhes sobre um item , atualizar um item, criar um item, marcar um item como completo e apagar um item existente. A aplicação salva devices os itens em uma tabela do DynamoDB.
 
 ### Registro de Usuário e Autenticação
 
@@ -45,7 +45,7 @@ Será necessário sua senha do GitHub para gerar o token de acesso.
 
 ### Utilizando SAM e o Amplify Console para criar e instalar os recursos da aplicação
 
-Você pode instalar todos os componentes da aplicação usando o script:
+Você pode instalar devices os componentes da aplicação usando o script:
 
 ```bash
 export AWS_DEFAULT_REGION=<escolha uma regiao, ex: us-east-1>
@@ -105,16 +105,16 @@ docker run -p 8000:8000 amazon/dynamodb-local
 Crie uma tabela DynamoDB em sua instância local
 
 ```bash
-aws dynamodb create-table --table-name TodoTable --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
+aws dynamodb create-table --table-name DeviceTable --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 ```
 
 Execute o SAM Local Module para testar a aplicação localmente
 
 ```bash
-sam local start-api --env-vars todo-src/test/environment/mac.json
+sam local start-api --env-vars device-src/test/environment/mac.json
 ```
 
-Arquivo de exemplo para MAC OS: `todo-src/test/environment/mac.json`
+Arquivo de exemplo para MAC OS: `device-src/test/environment/mac.json`
 
 #### Atualizando o Frontend
 
@@ -174,27 +174,27 @@ done
 
 O [template](../template.yaml) cria os recursos abaixo:
 
-* **TodoUserPool** - Cognito UserPool que gerencia os usuários da aplicaçào
+* **DeviceUserPool** - Cognito UserPool que gerencia os usuários da aplicaçào
 
-* **TodoUserPoolTokenClient** - Cognito UserPool Client que é usado pela aplicação web
+* **DeviceUserPoolTokenClient** - Cognito UserPool Client que é usado pela aplicação web
 
-* **TodoDomain** - Cognito UserPool Domain Name, para identificar o UserPool
+* **DeviceDomain** - Cognito UserPool Domain Name, para identificar o UserPool
 
-* **TodoTable** - Tabela no DynamoDB usada para registrar os itens da lista de ToDo de cada usuário
+* **DeviceTable** - Tabela no DynamoDB usada para registrar os itens da lista de Device de cada usuário
 
-* **TodoApi** - REST API usada para publicar as funcionalidades da aplicação
+* **DeviceApi** - REST API usada para publicar as funcionalidades da aplicação
 
-* **GetTodoFunction** -  Função Lambda usada para recuperar um item 
+* **GetDeviceFunction** -  Função Lambda usada para recuperar um item 
 
-* **GetAllTodoFunction** - Função Lambda usada para recuperar todos os itens do usuário
+* **GetAllDeviceFunction** - Função Lambda usada para recuperar devices os itens do usuário
 
-* **CompleteTodoFunction** - Função Lambda usada marcar um item como completo
+* **CompleteDeviceFunction** - Função Lambda usada marcar um item como completo
 
-* **AddTodoFunction** - Função Lambda usada para criar uma novo item
+* **AddDeviceFunction** - Função Lambda usada para criar uma novo item
 
-* **UpdateTodoFunction** - Função Lambda usada para atualizar o conteúdo de um item
+* **UpdateDeviceFunction** - Função Lambda usada para atualizar o conteúdo de um item
 
-* **DeleteTodoFunction** - Função Lambda usada para apagar um item
+* **DeleteDeviceFunction** - Função Lambda usada para apagar um item
 
 * **ApiGatewayPushToCloudWatchRole** - An IAM role that allows API Gateway to send log events to CloudWatch Logs
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Jumbotron, Row, Col, Alert, Button } from 'reactstrap';
 import axios from 'axios';
-import ToDo from './ToDo'
+import Device from './Device'
 
 import './App.css';
 import logo from './aws.png';
@@ -14,12 +14,12 @@ function App() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertDismissable, setAlertDismissable] = useState(false);
   const [idToken, setIdToken] = useState('');
-  const [toDos, setToDos] = useState([]);
+  const [devices, setDevices] = useState([]);
 
   useEffect(() => {
     getIdToken();
     if (idToken.length > 0) {
-      getAllTodos();
+      getAllDevices();
     }
   }, [idToken]);
 
@@ -57,7 +57,7 @@ function App() {
     });
   };
 
-  const getAllTodos = async () => {
+  const getAllDevices = async () => {
     const result = await axios({
       url: `${config.api_base_url}/item/`,
       headers: {
@@ -73,17 +73,17 @@ function App() {
       clearCredentials();
     } else if (result && result.status === 200) {
       console.log(result.data.Items);
-      setToDos(result.data.Items);
+      setDevices(result.data.Items);
     }
   };
 
-  const addToDo = async (event) => {
-    const newToDoInput = document.getElementById('newToDo');
-    const item = newToDoInput.value;
+  const addDevice = async (event) => {
+    const newDeviceInput = document.getElementById('newDevice');
+    const item = newDeviceInput.value;
     console.log(item);
     if (!item || item === '') return;
 
-    const newToDo = {
+    const newDevice = {
       "item": item,
       "completed": false
     };
@@ -94,18 +94,18 @@ function App() {
       headers: {
         Authorization: idToken
       },
-      data: newToDo
+      data: newDevice
     });
 
     if (result && result.status === 401) {
       clearCredentials();
     } else if (result && result.status === 200) {
-      getAllTodos();
-      newToDoInput.value = '';
+      getAllDevices();
+      newDeviceInput.value = '';
     }
   }
 
-  const deleteToDo = async (indexToRemove, itemId) => {
+  const deleteDevice = async (indexToRemove, itemId) => {
     if (indexToRemove === null) return;
     if (itemId === null) return;
 
@@ -120,12 +120,12 @@ function App() {
     if (result && result.status === 401) {
       clearCredentials();
     } else if (result && result.status === 200) {
-      const newToDos = toDos.filter((item, index) => index !== indexToRemove);
-      setToDos(newToDos);
+      const newDevices = devices.filter((item, index) => index !== indexToRemove);
+      setDevices(newDevices);
     }
   }
 
-  const completeToDo = async (itemId) => {
+  const completeDevice = async (itemId) => {
     if (itemId === null) return;
 
     const result = await axios({
@@ -137,7 +137,7 @@ function App() {
     });
 
     if (result && result.status === 200) {
-      getAllTodos();
+      getAllDevices();
     }
   }
 
@@ -150,8 +150,7 @@ function App() {
         <Jumbotron>
           <Row>
             <Col md="6" className="logo">
-              <h1>Serverless Todo</h1>
-              <p>This is a demo that showcases AWS serverless.</p>
+              <h1>Serverless Gamevision</h1>
               <p>The application is built using the SAM CLI toolchain, and uses AWS Lambda, Amazon DynamoDB, and Amazon API Gateway for API services and Amazon Cognito for identity.</p>
 
               <img src={logo} alt="Logo" />
@@ -159,7 +158,7 @@ function App() {
             <Col md="6">
               {idToken.length > 0 ?
                 (
-                  <ToDo updateAlert={updateAlert} toDos={toDos} addToDo={addToDo} deleteToDo={deleteToDo} completeToDo={completeToDo} />
+                  <Device updateAlert={updateAlert} devices={devices} addDevice={addDevice} deleteDevice={deleteDevice} completeDevice={completeDevice} />
                 ) : (
                   <Button
                     href={`https://${config.cognito_hosted_domain}/login?response_type=token&client_id=${config.aws_user_pools_web_client_id}&redirect_uri=${config.redirect_url}`}

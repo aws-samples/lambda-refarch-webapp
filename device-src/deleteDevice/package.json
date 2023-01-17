@@ -1,0 +1,13 @@
+{
+  "name": "DeleteDevice-item",
+  "version": "1.0.0",
+  "description": "Delete a Device item from the DynamoDB Table",
+  "main": "src/app.js",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.823.0",
+    "aws-embedded-metrics": "^2.0.2",
+    "aws-xray-sdk-core": "^3.2.0"
+  }
+}

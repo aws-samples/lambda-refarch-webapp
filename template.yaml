@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: "Sample todo serverless web application"
+Description: "Gamevision serverless web application"
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -33,7 +33,7 @@ Parameters:
     Default: prod
   CognitoDomainName:
     Type: String
-    Default: mytodoappdemo
+    Default: gamevisionwebapp
 
   # For Amplify Console frontend hosting
   Repository:
@@ -51,12 +51,12 @@ Parameters:
 Resources:
 
 #cognito declaration
-  TodoUserPool:
+  GamevisionUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
-      UserPoolName: TodoUsers
+      UserPoolName: GamevisionUsers
       UsernameAttributes:
       - email
       AutoVerifiedAttributes:
@@ -69,10 +69,10 @@ Resources:
           RequireSymbols: false
           RequireUppercase: true
   
-  TodoUserPoolTokenClient:
+  GamevisionUserPoolTokenClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !Ref TodoUserPool
+      UserPoolId: !Ref GamevisionUserPool
       GenerateSecret: false
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows: ['code', 'implicit']
@@ -82,16 +82,16 @@ Resources:
       ExplicitAuthFlows:
       - USER_PASSWORD_AUTH
   
-  TodoDomain:
+  GamevisionDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties: 
       Domain: !Join ['-', [!Ref CognitoDomainName, !Ref AWS::StackName]]
-      UserPoolId: !Ref TodoUserPool
+      UserPoolId: !Ref GamevisionUserPool
 
-  TodoTable:
+  DeviceTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Join ['-', [todo-table, !Ref AWS::StackName]]
+      TableName: !Join ['-', [device-table, !Ref AWS::StackName]]
       KeySchema:
           - AttributeName: cognito-username
             KeyType: HASH
@@ -109,7 +109,7 @@ Resources:
         SSEEnabled: true
 
   # API declaration
-  TodoApi:
+  DeviceApi:
     Type: AWS::Serverless::Api
     MethodSettings: 
         DataTraceEnabled: true
@@ -121,7 +121,7 @@ Resources:
       DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
       Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
     Properties:
-      Name: TodoApi
+      Name: DeviceApi
       StageName: !Ref StageNameParam
       TracingEnabled: true
       Cors:
@@ -131,22 +131,22 @@ Resources:
       Auth:
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: !GetAtt "TodoUserPool.Arn"
+            UserPoolArn: !GetAtt "GamevisionUserPool.Arn"
 
   # API Functions
-  GetTodoFunction:
+  GetDeviceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: todo-src/getTodo
-      Handler: app.getToDoItem
+      CodeUri: device-src/getDevice
+      Handler: app.getDeviceItem
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:
-            TableName: !Ref TodoTable
+            TableName: !Ref DeviceTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          TABLE_NAME: !Ref TodoTable
+          TABLE_NAME: !Ref DeviceTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           USE_DYNAMODB_LOCAL: "0"
           DYNAMODB_LOCAL_URI: ""
@@ -157,23 +157,23 @@ Resources:
           Properties:
             Path: /item/{id}
             Method: get
-            RestApiId: !Ref TodoApi
+            RestApiId: !Ref DeviceApi
             Auth:
               Authorizer: CognitoAuthorizer
 
-  GetAllTodoFunction:
+  GetAllDeviceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: todo-src/getAllTodo
-      Handler: app.getAllToDoItem
+      CodeUri: device-src/getAllDevice
+      Handler: app.getAllDeviceItem
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:
-            TableName: !Ref TodoTable
+            TableName: !Ref DeviceTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          TABLE_NAME: !Ref TodoTable
+          TABLE_NAME: !Ref DeviceTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           ENDPOINT_OVERRIDE: ""
 
@@ -183,23 +183,23 @@ Resources:
           Properties:
             Path: /item
             Method: get
-            RestApiId: !Ref TodoApi
+            RestApiId: !Ref DeviceApi
             Auth:
               Authorizer: CognitoAuthorizer
 
-  CompleteTodoFunction:
+  CompleteDeviceFunction:
       Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
       Properties:
-        CodeUri: todo-src/completeTodo/
-        Handler: app.completeToDoItem
+        CodeUri: device-src/completeDevice/
+        Handler: app.completeDeviceItem
         Tracing: Active
         Policies:
           - DynamoDBCrudPolicy:
-              TableName: !Ref TodoTable
+              TableName: !Ref DeviceTable
           - CloudWatchPutMetricPolicy: {}
         Environment:
           Variables:
-            TABLE_NAME: !Ref TodoTable
+            TABLE_NAME: !Ref DeviceTable
             AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
             ENDPOINT_OVERRIDE: ""
 
@@ -209,23 +209,23 @@ Resources:
             Properties:
               Path: /item/{id}/done
               Method: post
-              RestApiId: !Ref TodoApi
+              RestApiId: !Ref DeviceApi
               Auth:
                 Authorizer: CognitoAuthorizer
 
-  AddTodoFunction:
+  AddDeviceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: todo-src/addTodo/
-      Handler: app.addToDoItem
+      CodeUri: device-src/addDevice/
+      Handler: app.addDeviceItem
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref TodoTable
+            TableName: !Ref DeviceTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          TABLE_NAME: !Ref TodoTable
+          TABLE_NAME: !Ref DeviceTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           ENDPOINT_OVERRIDE: ""
 
@@ -235,23 +235,23 @@ Resources:
           Properties:
             Path: /item
             Method: POST
-            RestApiId: !Ref TodoApi
+            RestApiId: !Ref DeviceApi
             Auth:
               Authorizer: CognitoAuthorizer
 
-  UpdateTodoFunction:
+  UpdateDeviceFunction:
       Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
       Properties:
-        CodeUri: todo-src/updateTodo/
-        Handler: app.updateToDoItem
+        CodeUri: device-src/updateDevice/
+        Handler: app.updateDeviceItem
         Tracing: Active
         Policies:
           - DynamoDBCrudPolicy:
-              TableName: !Ref TodoTable
+              TableName: !Ref DeviceTable
           - CloudWatchPutMetricPolicy: {}
         Environment:
           Variables:
-            TABLE_NAME: !Ref TodoTable
+            TABLE_NAME: !Ref DeviceTable
             AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
         Events:
           UpdateItem:
@@ -259,23 +259,23 @@ Resources:
             Properties:
               Path: /item/{id}
               Method: PUT
-              RestApiId: !Ref TodoApi
+              RestApiId: !Ref DeviceApi
               Auth:
                 Authorizer: CognitoAuthorizer
 
-  DeleteTodoFunction:
+  DeleteDeviceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: todo-src/deleteTodo
-      Handler: app.deleteToDoItem
+      CodeUri: device-src/deleteDevice
+      Handler: app.deleteDeviceItem
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref TodoTable
+            TableName: !Ref DeviceTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          TABLE_NAME: !Ref TodoTable
+          TABLE_NAME: !Ref DeviceTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           ENDPOINT_OVERRIDE: ""
 
@@ -285,7 +285,7 @@ Resources:
           Properties:
             Path: /item/{id}
             Method: DELETE
-            RestApiId: !Ref TodoApi
+            RestApiId: !Ref DeviceApi
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -309,7 +309,7 @@ Resources:
   ApiAccessLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/apigateway/AccessLog-${TodoApi}
+      LogGroupName: !Sub /aws/apigateway/AccessLog-${DeviceApi}
       RetentionInDays: 365
 
   # Amplify console hosting for static website
@@ -338,9 +338,9 @@ Resources:
   AmplifyApp:
     Type: "AWS::Amplify::App"
     Properties:
-      Name: TodoApp
+      Name: Gamevision
       Repository: !Ref Repository
-      Description: Todo example app
+      Description: Web app for Gamevision device management and controlling user settings
       OauthToken: !Ref OauthToken
       BuildSpec: |-
         version: 0.1
@@ -357,7 +357,7 @@ Resources:
               - '**/*'
       Tags:
         - Key: Name
-          Value: Todo
+          Value: Gamevision
       IAMServiceRole: !GetAtt AmplifyRole.Arn
 
   AmplifyBranch:
@@ -369,7 +369,7 @@ Resources:
       EnableAutoBuild: true
       Tags:
         - Key: Name
-          Value: todo-amplify-console
+          Value: gamevision-amplify-console
         - Key: Branch
           Value: !Ref Branch
 
@@ -377,15 +377,15 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  TodoFunctionApi:
+  DeviceFunctionApi:
     Description: API Gateway endpoint URL for Prod stage
-    Value: !Sub "https://${TodoApi}.execute-api.${AWS::Region}.amazonaws.com/{StageNameParam}"
+    Value: !Sub "https://${DeviceApi}.execute-api.${AWS::Region}.amazonaws.com/{StageNameParam}"
   CognitoID:
     Description: The Cognito UserPool ID
-    Value: !Ref TodoUserPool
+    Value: !Ref DeviceUserPool
   CognitoClientID:
     Description: The Cognito UserPool Client ID
-    Value: !Ref TodoUserPoolTokenClient
+    Value: !Ref DeviceUserPoolTokenClient
   CognitoDomainName:
     Description: The Cognito Hosted UI Domain Name
     Value: !Join ['', [!Ref CognitoDomainName, '-', !Ref AWS::StackName, '.auth.', !Ref AWS::Region, '.amazoncognito.com']]
