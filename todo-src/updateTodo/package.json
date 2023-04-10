@@ -6,7 +6,7 @@
   "author": "SAM CLI",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.823.0",
+    "aws-sdk": "^2.1354.0",
     "aws-embedded-metrics": "^2.0.2",
     "aws-xray-sdk-core": "^3.2.0"
   }
